@@ -1151,10 +1151,30 @@ function renderTeamList(){
 }
 function viewMember(name){
   viewingMember = name;
+
+  // 현재 활성 탭 인덱스 저장
+  const tabs = document.querySelectorAll('.tab');
+  let activeTabIndex = 0;
+  tabs.forEach((t,i) => { if(t.classList.contains('active')) activeTabIndex = i; });
+
   renderTeamList();
   renderCalendar();
-  renderMain();
-  setTimeout(() => renderRequests(), 50);
+  renderMain(); // 이 함수가 탭을 0번(업무입력)으로 초기화함
+
+  // 이전 탭으로 복원
+  if(activeTabIndex > 0){
+    const allTabs = document.querySelectorAll('.tab');
+    const allPanels = document.querySelectorAll('.panel');
+    allTabs.forEach(t => t.classList.remove('active'));
+    allPanels.forEach(p => p.classList.remove('active'));
+    if(allTabs[activeTabIndex]) allTabs[activeTabIndex].classList.add('active');
+    if(allPanels[activeTabIndex]) allPanels[activeTabIndex].classList.add('active');
+
+    // 요청사항 탭(인덱스 2)이면 renderRequests 호출
+    if(activeTabIndex === 2) setTimeout(() => renderRequests(), 30);
+    // 전체기록 탭(인덱스 1)이면 renderHistory 호출
+    if(activeTabIndex === 1) renderHistory();
+  }
 }
 
 // ════════════════════════════════════════
