@@ -7,6 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<style>
+/* Quill 상위 번호 변경 시 하위 알파벳 카운터 리셋 */
+.ql-editor ol {
+  counter-reset: list-0;
+}
+.ql-editor ol > li:not([class*="ql-indent"]) {
+  counter-reset: list-1 list-2 list-3;
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
@@ -39,6 +48,24 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
   font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;}
 .pin-login-btn:hover{background:var(--teal-dark);}
 .pin-error{color:var(--red);font-size:0.82em;margin-top:14px;display:none;}
+/* PIN pad */
+.pin-dots{display:flex;gap:16px;justify-content:center;margin:20px 0 28px;}
+.pin-dot{width:18px;height:18px;border-radius:50%;background:#e0e0e0;transition:background 0.15s;}
+.pin-dot.filled{background:var(--teal);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.pin-num{padding:18px;background:#f5f6fa;border:none;border-radius:12px;font-size:1.3em;
+  font-weight:600;cursor:pointer;transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.pin-num:hover{background:#e8ecf4;}
+.pin-num:active{transform:scale(0.94);background:#d0d8ec;}
+.pin-back,.pin-clear{font-size:1em;color:var(--muted);}
+/* Badge dropdown */
+.badge-wrap{position:relative;}
+.badge-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:white;border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:200;min-width:160px;overflow:hidden;}
+.badge-dropdown button{display:block;width:100%;padding:13px 18px;background:none;border:none;
+  text-align:left;font-size:0.9em;font-weight:600;cursor:pointer;color:var(--ink);
+  font-family:'Plus Jakarta Sans',sans-serif;}
+.badge-dropdown button:hover{background:var(--warm);}
 
 /* ── MEMBER SCREEN ── */
 #memberScreen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;
@@ -287,6 +314,29 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 .task-title{font-weight:700;font-size:1em;color:var(--ink);}
 .task-content{font-size:0.88em;line-height:1.8;color:var(--ink);margin-bottom:12px;}
 .task-content:empty{display:none;}
+.task-content.ql-editor{padding:0 !important;font-size:0.88em;line-height:1.8;border:none !important;box-shadow:none !important;}
+.task-content.ql-editor ol,.task-content.ql-editor ul{padding-left:1.5em;}
+.task-content.ql-editor .ql-indent-1{padding-left:2em;}
+.task-content.ql-editor .ql-indent-2{padding-left:4em;}
+
+/* Quill 들여쓰기 목록 카운터 리셋 — 에디터 & 카드 표시 공통 */
+/* 이 규칙은 반드시 아래 indent-1 규칙보다 먼저 와야 함 */
+.ql-editor ol li.ql-indent-1,
+.task-content.ql-editor ol li.ql-indent-1 {
+  counter-reset: list-1;
+}
+/* 각 상위 항목 변경 시 하위 카운터 리셋 */
+.ql-editor ol > li {
+  counter-increment: list-0;
+  counter-reset: list-1;
+}
+.ql-editor ol li.ql-indent-1 {
+  counter-increment: list-1;
+  counter-reset: list-2;
+}
+.ql-editor ol li.ql-indent-1:before {
+  content: counter(list-1, lower-alpha) '. ';
+}
 
 /* ── COMMENTS ── */
 .comment-section{border-top:1px solid var(--border);padding-top:10px;margin-top:10px;}
@@ -304,6 +354,21 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
   display:flex;align-items:center;justify-content:center;z-index:700;}
 .task-modal{background:white;border-radius:16px;padding:28px;width:90%;max-width:560px;
   box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;}
+
+/* ── REQUEST PANEL ── */
+.req-card{background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);
+  border-left:4px solid var(--border);margin-bottom:12px;transition:all 0.2s;}
+.req-card.pending{border-left-color:#d4a017;}
+.req-card.done{border-left-color:var(--green);opacity:0.72;}
+.req-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.req-date{font-size:0.72em;color:var(--muted);}
+.req-from{font-size:0.74em;font-weight:700;padding:2px 9px;border-radius:20px;color:white;}
+.req-status{font-size:0.74em;font-weight:700;padding:3px 10px;border-radius:20px;}
+.req-status.pending{background:#fff3cd;color:#856404;}
+.req-status.done{background:#d1f5e0;color:#1a7a52;}
+.req-title{font-weight:700;font-size:0.95em;margin-bottom:5px;color:var(--ink);}
+.req-content{font-size:0.85em;color:var(--muted);line-height:1.65;}
+.req-actions{margin-top:10px;display:flex;justify-content:flex-end;}
 
 @media(max-width:700px){
   .app-layout{grid-template-columns:1fr;}
@@ -355,15 +420,81 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
   </div>
 </div>
 
+<!-- ══ SET PASSWORD SCREEN ══ -->
+<div id="setPasswordScreen" class="screen">
+  <div class="pin-card">
+    <div class="pin-logo">🔐</div>
+    <div class="pin-title" id="setPwTitle">비밀번호 설정</div>
+    <div class="pin-sub" id="setPwSub">처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.</div>
+    <div class="pin-dots">
+      <span class="pin-dot" id="setPwDot0"></span>
+      <span class="pin-dot" id="setPwDot1"></span>
+      <span class="pin-dot" id="setPwDot2"></span>
+      <span class="pin-dot" id="setPwDot3"></span>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-num" onclick="setPwInput('1')">1</button>
+      <button class="pin-num" onclick="setPwInput('2')">2</button>
+      <button class="pin-num" onclick="setPwInput('3')">3</button>
+      <button class="pin-num" onclick="setPwInput('4')">4</button>
+      <button class="pin-num" onclick="setPwInput('5')">5</button>
+      <button class="pin-num" onclick="setPwInput('6')">6</button>
+      <button class="pin-num" onclick="setPwInput('7')">7</button>
+      <button class="pin-num" onclick="setPwInput('8')">8</button>
+      <button class="pin-num" onclick="setPwInput('9')">9</button>
+      <button class="pin-num pin-back" onclick="setPwBack()">⌫</button>
+      <button class="pin-num" onclick="setPwInput('0')">0</button>
+      <button class="pin-num pin-clear" onclick="showScreen('memberScreen')">취소</button>
+    </div>
+    <div id="setPwError" style="color:var(--red);font-size:0.82em;margin-top:8px;min-height:1.2em;"></div>
+  </div>
+</div>
+
+<!-- ══ MEMBER LOGIN SCREEN ══ -->
+<div id="memberLoginScreen" class="screen">
+  <div class="pin-card">
+    <div class="pin-logo">👤</div>
+    <div class="pin-title" id="loginPwTitle">안녕하세요</div>
+    <div class="pin-sub" id="loginPwSub">비밀번호를 입력하세요</div>
+    <div class="pin-dots">
+      <span class="pin-dot" id="loginPwDot0"></span>
+      <span class="pin-dot" id="loginPwDot1"></span>
+      <span class="pin-dot" id="loginPwDot2"></span>
+      <span class="pin-dot" id="loginPwDot3"></span>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-num" onclick="loginPwInput('1')">1</button>
+      <button class="pin-num" onclick="loginPwInput('2')">2</button>
+      <button class="pin-num" onclick="loginPwInput('3')">3</button>
+      <button class="pin-num" onclick="loginPwInput('4')">4</button>
+      <button class="pin-num" onclick="loginPwInput('5')">5</button>
+      <button class="pin-num" onclick="loginPwInput('6')">6</button>
+      <button class="pin-num" onclick="loginPwInput('7')">7</button>
+      <button class="pin-num" onclick="loginPwInput('8')">8</button>
+      <button class="pin-num" onclick="loginPwInput('9')">9</button>
+      <button class="pin-num pin-back" onclick="loginPwBack()">⌫</button>
+      <button class="pin-num" onclick="loginPwInput('0')">0</button>
+      <button class="pin-num pin-clear" onclick="showScreen('memberScreen')">취소</button>
+    </div>
+    <div id="loginPwError" style="color:var(--red);font-size:0.82em;margin-top:8px;min-height:1.2em;"></div>
+  </div>
+</div>
+
 <!-- ══ MAIN APP SCREEN ══ -->
 <div id="appScreen" class="screen">
   <div class="topbar">
     <div class="topbar-left">
       <div class="topbar-logo">📋 Daily Report</div>
-      <div class="member-badge" onclick="goMemberSelect()">
-        <div class="badge-av" id="topBadgeAv"></div>
-        <span class="badge-name" id="topBadgeName"></span>
-        <span style="color:rgba(255,255,255,0.45);font-size:0.8em;margin-left:2px;">▾</span>
+      <div class="badge-wrap">
+        <div class="member-badge" onclick="toggleBadgeMenu()">
+          <div class="badge-av" id="topBadgeAv"></div>
+          <span class="badge-name" id="topBadgeName"></span>
+          <span style="color:rgba(255,255,255,0.45);font-size:0.8em;margin-left:2px;">▾</span>
+        </div>
+        <div class="badge-dropdown" id="badgeDropdown" style="display:none;">
+          <button onclick="closeBadgeMenu();goMemberSelect();">팀원 전환</button>
+          <button onclick="closeBadgeMenu();startChangePassword();">비밀번호 변경</button>
+        </div>
       </div>
     </div>
     <div class="topbar-right">
@@ -410,6 +541,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
       <div class="tabs">
         <button class="tab active" onclick="switchTab('write',this)">✏️ 업무 입력</button>
         <button class="tab" onclick="switchTab('history',this)">📚 전체 기록</button>
+        <button class="tab" onclick="switchTab('request',this)">✉️ 요청사항</button>
       </div>
 
       <!-- WRITE PANEL -->
@@ -430,6 +562,17 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
       <!-- HISTORY PANEL -->
       <div class="panel" id="historyPanel">
         <div id="historyList" class="history-list"></div>
+      </div>
+
+      <!-- REQUEST PANEL -->
+      <div class="panel" id="requestPanel">
+        <div id="addRequestBtnRow" style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+          <button class="btn btn-save" onclick="addRequestModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            요청 추가
+          </button>
+        </div>
+        <div id="requestList"></div>
       </div>
     </main>
   </div>
@@ -508,6 +651,9 @@ const MEMBERS = [
   { name:'Gao',   color:'#2e9e6b', init:'GO' },
 ];
 const DEMO_KEY = 'teamReport_v7';
+const SB_CACHE = 'sb_logs_v1';
+const SB_REQ_CACHE = 'sb_req_v1';
+const RC_CACHE = 'rc_cache_v1';
 
 let demoMode = false;
 let sbUrl = '', sbKey = '';
@@ -517,6 +663,10 @@ let currentDate = new Date().toISOString().split('T')[0];
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let allLogs = [];
+let allRequests = [];
+let allRequestComments = [];
+const REQ_KEY = 'requests_v1';
+const RC_KEY = 'req_comments_v1';
 let emailDomain = '';
 let reportFilterMember = 'ALL';
 let currentReportId = null;
@@ -622,12 +772,128 @@ async function connectSB(){
 document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPin(); });
 
 // ════════════════════════════════════════
+//  MEMBER PIN SYSTEM
+// ════════════════════════════════════════
+let pendingMember = null;
+let setPwBuffer = '', setPwStep = 'first', setPwFirst = '', isChangingPassword = false;
+let loginPwBuffer = '', loginPwAttempts = 0, loginPwMode = 'login';
+
+function getMemberPin(name){ return localStorage.getItem('memberPin_' + name); }
+function setMemberPin(name, pin){ localStorage.setItem('memberPin_' + name, pin); }
+
+function updateSetPwDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('setPwDot'+i);
+    if(d) d.classList.toggle('filled', i < setPwBuffer.length);
+  }
+}
+function setPwInput(digit){
+  if(setPwBuffer.length >= 4) return;
+  setPwBuffer += digit;
+  updateSetPwDots();
+  if(setPwBuffer.length === 4){
+    setTimeout(()=>{
+      if(setPwStep === 'first'){
+        setPwFirst = setPwBuffer; setPwBuffer = ''; setPwStep = 'confirm';
+        document.getElementById('setPwSub').textContent = '다시 한 번 입력해 확인해주세요.';
+        document.getElementById('setPwError').textContent = '';
+        updateSetPwDots();
+      } else {
+        if(setPwBuffer === setPwFirst){
+          setMemberPin(pendingMember, setPwBuffer);
+          if(isChangingPassword){
+            showToast('✅ 비밀번호가 변경되었습니다','success');
+            showScreen('appScreen');
+          } else {
+            initApp();
+          }
+        } else {
+          document.getElementById('setPwError').textContent = '비밀번호가 일치하지 않습니다. 다시 시도해주세요.';
+          setPwBuffer = ''; setPwFirst = ''; setPwStep = 'first';
+          document.getElementById('setPwSub').textContent = isChangingPassword ? '새 비밀번호를 입력하세요.' : '처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.';
+          updateSetPwDots();
+        }
+      }
+    }, 100);
+  }
+}
+function setPwBack(){ if(setPwBuffer.length>0){ setPwBuffer=setPwBuffer.slice(0,-1); updateSetPwDots(); } }
+
+function showSetPasswordScreen(name, forChange){
+  pendingMember = name; isChangingPassword = forChange;
+  setPwBuffer = ''; setPwStep = 'first'; setPwFirst = '';
+  document.getElementById('setPwTitle').textContent = forChange ? '비밀번호 변경 — '+name : '비밀번호 설정 — '+name;
+  document.getElementById('setPwSub').textContent = forChange ? '새 비밀번호를 입력하세요.' : '처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.';
+  document.getElementById('setPwError').textContent = '';
+  updateSetPwDots();
+  showScreen('setPasswordScreen');
+}
+
+function updateLoginPwDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('loginPwDot'+i);
+    if(d) d.classList.toggle('filled', i < loginPwBuffer.length);
+  }
+}
+function loginPwInput(digit){
+  if(loginPwBuffer.length >= 4) return;
+  loginPwBuffer += digit;
+  updateLoginPwDots();
+  if(loginPwBuffer.length === 4){
+    setTimeout(()=>{
+      const saved = getMemberPin(pendingMember);
+      if(loginPwBuffer === saved){
+        loginPwAttempts = 0;
+        if(loginPwMode === 'verify_for_change'){
+          showSetPasswordScreen(pendingMember, true);
+        } else {
+          initApp();
+        }
+      } else {
+        loginPwAttempts++;
+        loginPwBuffer = ''; updateLoginPwDots();
+        const remaining = 3 - loginPwAttempts;
+        document.getElementById('loginPwError').textContent =
+          loginPwAttempts >= 3 ? '비밀번호가 틀렸습니다. (3회 실패)' : `비밀번호가 틀렸습니다. (${loginPwAttempts}/3)`;
+      }
+    }, 100);
+  }
+}
+function loginPwBack(){ if(loginPwBuffer.length>0){ loginPwBuffer=loginPwBuffer.slice(0,-1); updateLoginPwDots(); } }
+
+function showMemberLoginScreen(name, mode){
+  pendingMember = name; loginPwMode = mode;
+  loginPwBuffer = ''; loginPwAttempts = 0;
+  document.getElementById('loginPwTitle').textContent = mode==='verify_for_change' ? '비밀번호 변경 — '+name : '안녕하세요, '+name+'님';
+  document.getElementById('loginPwSub').textContent = mode==='verify_for_change' ? '현재 비밀번호를 입력하세요' : '비밀번호를 입력하세요';
+  document.getElementById('loginPwError').textContent = '';
+  updateLoginPwDots();
+  showScreen('memberLoginScreen');
+}
+
+function toggleBadgeMenu(){
+  const dd=document.getElementById('badgeDropdown');
+  dd.style.display = dd.style.display==='none' ? 'block' : 'none';
+}
+function closeBadgeMenu(){ document.getElementById('badgeDropdown').style.display='none'; }
+function startChangePassword(){ showMemberLoginScreen(currentMember,'verify_for_change'); }
+
+document.addEventListener('click', e=>{
+  const wrap = e.target.closest('.badge-wrap');
+  if(!wrap) closeBadgeMenu();
+});
+
+// ════════════════════════════════════════
 //  MEMBER SELECT
 // ════════════════════════════════════════
 function selectMember(name){
-  currentMember=name; viewingMember=name;
   currentDate=todayStr(); calYear=new Date().getFullYear(); calMonth=new Date().getMonth();
-  initApp();
+  const pin = getMemberPin(name);
+  if(!pin){
+    showSetPasswordScreen(name, false);
+  } else {
+    showMemberLoginScreen(name, 'login');
+  }
 }
 function goMemberSelect(){ showScreen('memberScreen'); }
 function goBack(){ showScreen('appScreen'); }
@@ -636,28 +902,111 @@ function goBack(){ showScreen('appScreen'); }
 //  APP INIT
 // ════════════════════════════════════════
 async function initApp(){
+  currentMember = pendingMember;
+  viewingMember = pendingMember;
   showScreen('appScreen');
   const m=MEMBERS.find(x=>x.name===currentMember);
   document.getElementById('topBadgeAv').textContent=m.init;
   document.getElementById('topBadgeAv').style.background=m.color;
   document.getElementById('topBadgeName').textContent=currentMember;
   renderTeamList(); renderCalendar();
-  await loadAllLogs();
+  // Phase 1: 캐시에서 즉시 렌더
+  const cacheKey = demoMode ? DEMO_KEY : SB_CACHE;
+  const reqCacheKey = demoMode ? REQ_KEY : SB_REQ_CACHE;
+  allLogs = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+  allRequests = JSON.parse(localStorage.getItem(reqCacheKey) || '[]');
+  allRequestComments = JSON.parse(localStorage.getItem(demoMode ? RC_KEY : RC_CACHE) || '[]');
   renderMain();
+  // Phase 2: Supabase에서 최신 데이터 백그라운드 로드
+  if(!demoMode) fetchFreshData();
 }
 
 // ════════════════════════════════════════
 //  DATA
 // ════════════════════════════════════════
 async function loadAllLogs(){
-  if(demoMode){ allLogs=JSON.parse(localStorage.getItem(DEMO_KEY)||'[]'); return; }
+  if(demoMode){
+    allLogs=JSON.parse(localStorage.getItem(DEMO_KEY)||'[]');
+    allRequests=JSON.parse(localStorage.getItem(REQ_KEY)||'[]');
+    allRequestComments=JSON.parse(localStorage.getItem(RC_KEY)||'[]');
+    return;
+  }
   try {
     const r=await sbFetch('daily_logs?select=*&order=log_date.desc');
-    if(!r.ok) throw new Error();
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
     allLogs=await r.json();
-  } catch(e){ showToast('로드 실패','error'); allLogs=[]; }
+    localStorage.setItem(SB_CACHE, JSON.stringify(allLogs));
+  } catch(e){
+    console.warn('[loadAllLogs] daily_logs 로딩 실패:', e.message);
+    showToast('로드 실패','error');
+    allLogs=JSON.parse(localStorage.getItem(SB_CACHE)||'[]');
+  }
+  try {
+    const r2=await sbFetch('requests?select=*&order=created_at.desc');
+    if(r2.ok){
+      allRequests=await r2.json();
+      localStorage.setItem(SB_REQ_CACHE, JSON.stringify(allRequests));
+    } else {
+      console.warn('[loadAllLogs] requests 로딩 실패: HTTP', r2.status);
+      allRequests=JSON.parse(localStorage.getItem(SB_REQ_CACHE)||'[]');
+    }
+  } catch(e){
+    console.warn('[loadAllLogs] requests 네트워크 에러:', e.message);
+    allRequests=JSON.parse(localStorage.getItem(SB_REQ_CACHE)||'[]');
+  }
+  try {
+    const r3=await sbFetch('request_comments?select=*&order=created_at.asc');
+    if(r3.ok){
+      allRequestComments=await r3.json();
+      localStorage.setItem(RC_CACHE, JSON.stringify(allRequestComments));
+    } else {
+      console.warn('[loadAllLogs] request_comments 로딩 실패: HTTP', r3.status);
+      allRequestComments=JSON.parse(localStorage.getItem(RC_CACHE)||'[]');
+    }
+  } catch(e){
+    console.warn('[loadAllLogs] request_comments 네트워크 에러:', e.message);
+    allRequestComments=JSON.parse(localStorage.getItem(RC_CACHE)||'[]');
+  }
+}
+
+async function migrateLocalRequests(){
+  const legacy=JSON.parse(localStorage.getItem(REQ_KEY)||'[]');
+  if(!legacy.length || demoMode) return;
+  let migrated=0;
+  for(const req of legacy){
+    try {
+      const r=await sbFetch('requests',{method:'POST',prefer:'return=minimal',body:JSON.stringify(req)});
+      if(r.ok) migrated++;
+    } catch(e){}
+  }
+  if(migrated===legacy.length){
+    localStorage.removeItem(REQ_KEY);
+    if(migrated>0) showToast(`✅ 요청 ${migrated}건 DB 이전 완료`,'success');
+  } else if(migrated>0){
+    console.warn(`[migrate] ${migrated}/${legacy.length}건만 이전됨`);
+  }
+}
+
+async function fetchFreshData(){
+  await migrateLocalRequests();
+  try {
+    const [r1,r2,r3]=await Promise.all([
+      sbFetch('daily_logs?select=*&order=log_date.desc'),
+      sbFetch('requests?select=*&order=created_at.desc'),
+      sbFetch('request_comments?select=*&order=created_at.asc')
+    ]);
+    let updated=false;
+    if(r1.ok){ allLogs=await r1.json(); localStorage.setItem(SB_CACHE,JSON.stringify(allLogs)); updated=true; }
+    else { console.warn('[fetchFreshData] daily_logs 실패: HTTP', r1.status); }
+    if(r2.ok){ allRequests=await r2.json(); localStorage.setItem(SB_REQ_CACHE,JSON.stringify(allRequests)); }
+    else { console.warn('[fetchFreshData] requests 실패: HTTP', r2.status); }
+    if(r3.ok){ allRequestComments=await r3.json(); localStorage.setItem(RC_CACHE,JSON.stringify(allRequestComments)); }
+    else { console.warn('[fetchFreshData] request_comments 실패: HTTP', r3.status); }
+    if(updated) renderMain();
+  } catch(e){ console.warn('[fetchFreshData] 네트워크 에러:', e.message); }
 }
 function getLog(member,date){ return allLogs.find(l=>l.member_name===member&&l.log_date===date)||null; }
+function getLogs(member,date){ return allLogs.filter(l=>l.member_name===member&&l.log_date===date); }
 
 async function saveLogData(member, date, fields){
   if(demoMode){
@@ -689,6 +1038,49 @@ async function deleteLog(id){
     if(!r.ok) throw new Error();
     return true;
   } catch(e){ showToast('삭제 실패','error'); return false; }
+}
+
+async function confirmDeleteLog(id){
+  const log = allLogs.find(l => l.id === id);
+  if(!log) return;
+  if(log.member_name !== currentMember){
+    showToast('본인 기록만 삭제 가능합니다','error'); return;
+  }
+  showConfirm(
+    '기록 삭제',
+    `${fmtShort(log.log_date)} 업무 기록을 삭제하시겠습니까?`,
+    async () => {
+      showLoading('삭제 중...');
+      const ok = await deleteLog(id);
+      await loadAllLogs();
+      hideLoading();
+      if(ok){
+        showToast('🗑️ 삭제되었습니다','success');
+        renderCalendar();
+        renderMain();
+      }
+    }
+  );
+}
+
+async function confirmDeleteTask(id){
+  const log = allLogs.find(l => l.id === id);
+  if(!log) return;
+  showConfirm(
+    '기록 삭제',
+    `${fmtShort(log.log_date)} 기록을 삭제하시겠습니까?`,
+    async () => {
+      showLoading('삭제 중...');
+      const ok = await deleteLog(id);
+      await loadAllLogs();
+      hideLoading();
+      if(ok){
+        showToast('🗑️ 삭제되었습니다', 'success');
+        renderCalendar();
+        renderMain();
+      }
+    }
+  );
 }
 
 // ════════════════════════════════════════
@@ -743,6 +1135,7 @@ function selectDate(date){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   document.getElementById('writePanel').classList.add('active');
   document.getElementById('historyPanel').classList.remove('active');
+  document.getElementById('requestPanel').classList.remove('active');
 }
 
 // ════════════════════════════════════════
@@ -756,7 +1149,14 @@ function renderTeamList(){
       ${m.name===currentMember?'<span style="font-size:0.68em;opacity:0.5;">(나)</span>':''}
     </div>`).join('');
 }
-function viewMember(name){ viewingMember=name; renderTeamList(); renderCalendar(); renderMain(); }
+function viewMember(name){
+  viewingMember=name;
+  renderTeamList();
+  renderCalendar();
+  renderMain();
+  const requestPanel=document.getElementById('requestPanel');
+  if(requestPanel && requestPanel.classList.contains('active')) renderRequests();
+}
 
 // ════════════════════════════════════════
 //  MAIN RENDER
@@ -785,18 +1185,24 @@ function renderMain(){
 function renderTaskList(){
   const container=document.getElementById('taskListContainer');
   const isMe=viewingMember===currentMember;
-  const log=getLog(viewingMember,currentDate);
-  const tasks=getTasksForLog(log);
+
+  // 같은 날짜의 모든 레코드 수집
+  const dayLogs=getLogs(viewingMember,currentDate);
 
   // 버튼 행 표시/숨김
   const btnRow=document.getElementById('addTaskBtnRow');
   if(btnRow) btnRow.style.display=isMe?'flex':'none';
 
-  if(!tasks.length){
+  // 각 레코드의 tasks를 원본 log 참조와 함께 수집
+  const allTaskPairs=dayLogs.flatMap(log=>
+    getTasksForLog(log).map(task=>({log,task}))
+  );
+
+  if(!allTaskPairs.length){
     container.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>${isMe?'업무를 추가해보세요':'등록된 업무가 없습니다'}</p></div>`;
     return;
   }
-  container.innerHTML=tasks.map(task=>renderTaskCard(log,task,isMe)).join('');
+  container.innerHTML=allTaskPairs.map(({log,task})=>renderTaskCard(log,task,isMe)).join('');
 }
 
 function renderTaskCard(log,task,isMe){
@@ -824,15 +1230,12 @@ function renderTaskCard(log,task,isMe){
   const logId=log.id;
   const taskId=task.task_id;
 
-  return `<div class="task-card" id="tcard-${taskId}">
+  return `<div class="task-card" id="tcard-${taskId}" data-task-id="${taskId}">
     <div class="task-card-header">
       <div class="task-title">🏷 ${escapeHtml(task.title||'(제목 없음)')}</div>
-      ${isMe&&!isLegacy?`<div style="display:flex;gap:6px;">
-        <button class="btn btn-outline btn-sm" onclick="addTaskModal('${taskId}')">수정</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteTask('${logId}','${taskId}')">삭제</button>
-      </div>`:''}
+      ${renderCardButtons(log, task)}
     </div>
-    <div class="task-content">${task.content||''}</div>
+    <div class="task-content ql-editor" style="padding:0;">${task.content||''}</div>
     ${attachments.length?`<div class="attach-grid" style="margin-bottom:12px;">${imgsHtml}${filesHtml}</div>`:''}
     <div class="comment-section">
       <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 댓글 ${comments.length}건</div>
@@ -1045,29 +1448,103 @@ async function deleteComment(logId,taskId,commentId){
 //  HISTORY
 // ════════════════════════════════════════
 function renderHistory(){
-  const list=document.getElementById('historyList');
-  const logs=allLogs.filter(l=>l.member_name===viewingMember).sort((a,b)=>b.log_date.localeCompare(a.log_date));
-  if(!logs.length){ list.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>아직 기록이 없습니다</p></div>'; return; }
-  list.innerHTML=logs.map(l=>{
-    const tasks=getTasksForLog(l);
-    const preview=tasks.map(t=>stripHtml(t.title+' '+t.content)).join(' / ').slice(0,100);
-    const tags=[];
-    if(tasks.length) tags.push([`업무 ${tasks.length}건`,true]);
-    if(l.report) tags.push(['보고서',false]);
-    const imgs=tasks.flatMap(t=>t.attachments||[]).filter(a=>a.type==='image').slice(0,3).map(a=>`<img src="${a.data}" class="hcard-img">`).join('');
-    const m=MEMBERS.find(x=>x.name===l.member_name);
-    const isOwn=l.member_name===currentMember;
-    return `<div class="hcard" style="border-left-color:${m?.color||'#888'}" onclick="selectDate('${l.log_date}')">
-      ${isOwn?`<button class="hcard-menu-btn" onclick="event.stopPropagation();toggleHcardMenu('${l.id}')">⋯</button>
-      <div class="hcard-dropdown" id="menu-${l.id}" style="display:none">
-        <button onclick="event.stopPropagation();deleteHistoryLog('${l.id}')">🗑️ 삭제</button>
-      </div>`:''}
-      <div class="hcard-date">${fmtDate(l.log_date)}</div>
-      <div class="hcard-member" style="color:${m?.color}">${l.member_name}</div>
-      <div class="hcard-preview">${preview||'(내용 없음)'}</div>
-      <div class="hcard-tags">${tags.map(([t,f])=>`<span class="hcard-tag ${f?'filled':''}">${t}</span>`).join('')}</div>
-      ${imgs?`<div class="hcard-imgs">${imgs}</div>`:''}
-    </div>`;
+  const list = document.getElementById('historyList');
+
+  const logs = allLogs
+    .filter(l => l.member_name === viewingMember)
+    .sort((a, b) => b.log_date.localeCompare(a.log_date));
+
+  if(!logs.length){
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>아직 기록이 없습니다</p></div>';
+    return;
+  }
+
+  // 날짜 기준으로 그룹핑 (같은 날짜 = 카드 1개)
+  const grouped = {};
+  logs.forEach(l => {
+    if(!grouped[l.log_date]){
+      grouped[l.log_date] = { ...l, _allLogs: [l] };
+    } else {
+      grouped[l.log_date]._allLogs.push(l);
+      if(Array.isArray(l.tasks)){
+        grouped[l.log_date].tasks = [
+          ...(grouped[l.log_date].tasks || []),
+          ...l.tasks
+        ];
+      }
+      if(l.meetings) grouped[l.log_date].meetings = (grouped[l.log_date].meetings || '') + ' ' + l.meetings;
+      if(l.others)   grouped[l.log_date].others   = (grouped[l.log_date].others   || '') + ' ' + l.others;
+      if(l.calls)    grouped[l.log_date].calls     = (grouped[l.log_date].calls    || '') + ' ' + l.calls;
+      if(l.sns)      grouped[l.log_date].sns       = (grouped[l.log_date].sns      || '') + ' ' + l.sns;
+    }
+  });
+
+  const groupedLogs = Object.values(grouped)
+    .sort((a, b) => b.log_date.localeCompare(a.log_date));
+
+  const visibleLogs = groupedLogs.filter(l => {
+    const m      = stripHtml(l.meetings || '').trim();
+    const o      = stripHtml(l.others   || '').trim();
+    const calls  = stripHtml(l.calls    || '').trim();
+    const sns    = stripHtml(l.sns      || '').trim();
+    const hasTasks = Array.isArray(l.tasks) && l.tasks.length > 0;
+    return m || o || calls || sns || hasTasks;
+  });
+
+  if(!visibleLogs.length){
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>아직 기록이 없습니다</p></div>';
+    return;
+  }
+
+  list.innerHTML = visibleLogs.map(l => {
+    const lines = [];
+
+    // 신형: tasks 배열
+    if(Array.isArray(l.tasks) && l.tasks.length > 0){
+      l.tasks.forEach(t => {
+        const title   = typeof t === 'string' ? t : (t.title || t.name || '');
+        const content = typeof t === 'object'  ? (t.content || t.body || t.description || '') : '';
+        const text    = [title, stripHtml(content).trim()].filter(Boolean).join(': ').slice(0, 100);
+        if(text) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
+          <span style="font-weight:700;color:var(--teal);">📝</span> ${text}
+        </div>`);
+      });
+    }
+
+    // 구형: meetings, calls, sns, others
+    const meetingsText = stripHtml(l.meetings || '').trim();
+    const callsText    = stripHtml(l.calls    || '').trim();
+    const snsText      = stripHtml(l.sns      || '').trim();
+    const othersText   = stripHtml(l.others   || '').trim();
+
+    if(meetingsText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
+      <span style="font-weight:700;color:var(--teal);">📝 업무:</span> ${meetingsText.slice(0,100)}
+    </div>`);
+    if(callsText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
+      <span style="font-weight:700;color:#3b6ea8;">📞 통화:</span> ${callsText.slice(0,100)}
+    </div>`);
+    if(snsText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
+      <span style="font-weight:700;color:#2e9e6b;">💬 SNS:</span> ${snsText.slice(0,100)}
+    </div>`);
+    if(othersText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
+      <span style="font-weight:700;color:var(--muted);">🗒️ 기타:</span> ${othersText.slice(0,100)}
+    </div>`);
+
+    const contentHtml = lines.join('');
+    const tags = [];
+    if(l.report) tags.push(['보고서', false]);
+    const imgs = (l.attachments||[]).filter(a => a.type==='image').slice(0,3)
+      .map(a => `<img src="${a.data}" class="hcard-img">`).join('');
+    const m = MEMBERS.find(x => x.name === l.member_name);
+
+    return `<div class="hcard" style="border-left-color:${m?.color||'#888'};cursor:pointer;"
+  onclick="selectDate('${l.log_date}')">
+  <div class="hcard-date">${fmtDate(l.log_date)}</div>
+  <div class="hcard-member" style="color:${m?.color}">${l.member_name}</div>
+  <div class="hcard-preview">${contentHtml}</div>
+  <div class="hcard-tags">${tags.map(([t,f])=>`<span class="hcard-tag ${f?'filled':''}">${t}</span>`).join('')}</div>
+  ${imgs?`<div class="hcard-imgs">${imgs}</div>`:''}
+</div>`;
   }).join('');
 }
 
@@ -1122,8 +1599,188 @@ function switchTab(name,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById(name==='write'?'writePanel':'historyPanel').classList.add('active');
-  if(name==='history') renderHistory();
+  if(name==='write') document.getElementById('writePanel').classList.add('active');
+  else if(name==='history'){ document.getElementById('historyPanel').classList.add('active'); renderHistory(); }
+  else if(name==='request'){ document.getElementById('requestPanel').classList.add('active'); renderRequests(); }
+}
+
+// ════════════════════════════════════════
+//  REQUESTS
+// ════════════════════════════════════════
+function renderRequests(){
+  const isMe = viewingMember === currentMember;
+  const btnRow = document.getElementById('addRequestBtnRow');
+  if(btnRow) btnRow.style.display = isMe ? 'none' : 'flex';
+
+  const filtered = allRequests
+    .filter(r => r.to_member === viewingMember)
+    .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const container = document.getElementById('requestList');
+  if(!filtered.length){
+    container.innerHTML = `<div class="empty-state"><div class="icon">✉️</div><div>요청사항이 없습니다.</div></div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(r => {
+    const m = MEMBERS.find(x => x.name === r.from_member);
+    const fromColor = m ? m.color : '#888';
+    const canComplete = r.to_member === currentMember && r.status === 'pending';
+    const reqComments = allRequestComments
+      .filter(c => c.request_id === r.id)
+      .sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    const commentsHtml = reqComments.map(c => {
+      const isMyComment = c.member_name === currentMember;
+      return `<div class="comment-item">
+        <span class="comment-author" style="color:${memberColor(c.member_name)}">${escapeHtml(c.member_name)}</span>
+        <span class="comment-text">${escapeHtml(c.content)}</span>
+        <span class="comment-date">${fmtCommentDate(c.created_at)}</span>
+        ${isMyComment?`<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;" onclick="deleteRequestComment('${c.id}')">🗑️</button>`:''}
+      </div>`;
+    }).join('');
+    return `
+      <div class="req-card ${r.status}">
+        <div class="req-meta">
+          <span class="req-date">${r.log_date || (r.created_at||'').split('T')[0]}</span>
+          <span class="req-from" style="background:${fromColor}">${r.from_member}</span>
+          <span class="req-status ${r.status}">${r.status==='done'?'✅ 완료':'🕐 처리중'}</span>
+        </div>
+        <div class="req-title">${escapeHtml(r.title)}</div>
+        ${r.content?`<div class="req-content">${escapeHtml(r.content).replace(/\n/g,'<br>')}</div>`:''}
+        ${canComplete?`<div class="req-actions"><button class="btn btn-save btn-sm" onclick="completeRequest('${r.id}')">완료 처리</button></div>`:''}
+        <div class="comment-section">
+          <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 댓글 ${reqComments.length}건</div>
+          ${commentsHtml}
+          <div class="comment-input-row">
+            <input type="text" class="comment-input" id="rci-${r.id}"
+              placeholder="댓글을 입력하세요..."
+              onkeydown="if(event.key==='Enter')saveRequestComment('${r.id}','rci-${r.id}')">
+            <button class="btn btn-save btn-sm" onclick="saveRequestComment('${r.id}','rci-${r.id}')">등록</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function saveRequest(toMember, fromMember, title, content){
+  const req = {
+    id: genUUID(), to_member: toMember, from_member: fromMember,
+    title, content, status: 'pending',
+    log_date: todayStr(), created_at: new Date().toISOString()
+  };
+  allRequests.unshift(req);
+  if(demoMode){
+    localStorage.setItem(REQ_KEY, JSON.stringify(allRequests)); return;
+  }
+  try {
+    const r = await sbFetch('requests', {method:'POST', prefer:'return=minimal', body:JSON.stringify(req)});
+    if(!r.ok) throw new Error();
+  } catch(e){ /* 실패 시에도 in-memory 유지 */ }
+  localStorage.setItem(SB_REQ_CACHE, JSON.stringify(allRequests));
+}
+
+async function completeRequest(id){
+  const idx = allRequests.findIndex(r => r.id === id);
+  if(idx >= 0) allRequests[idx].status = 'done';
+  if(demoMode){
+    localStorage.setItem(REQ_KEY, JSON.stringify(allRequests));
+    renderRequests(); return;
+  }
+  try {
+    const r = await sbFetch(`requests?id=eq.${id}`, {method:'PATCH', prefer:'return=minimal', body:JSON.stringify({status:'done'})});
+    if(!r.ok) throw new Error();
+  } catch(e){ /* 실패 시에도 in-memory 유지 */ }
+  localStorage.setItem(SB_REQ_CACHE, JSON.stringify(allRequests));
+  renderRequests();
+}
+
+async function saveRequestComment(requestId, inputId){
+  const input = document.getElementById(inputId);
+  if(!input) return;
+  const content = input.value.trim();
+  if(!content) return;
+  const comment = {
+    id: genUUID(), request_id: requestId,
+    member_name: currentMember, content,
+    created_at: new Date().toISOString()
+  };
+  allRequestComments.push(comment);
+  input.value = '';
+  if(demoMode){
+    localStorage.setItem(RC_KEY, JSON.stringify(allRequestComments));
+    renderRequests(); return;
+  }
+  try {
+    const r = await sbFetch('request_comments', {method:'POST', prefer:'return=minimal', body:JSON.stringify(comment)});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  } catch(e){ console.warn('[saveRequestComment] 실패:', e.message); }
+  localStorage.setItem(RC_CACHE, JSON.stringify(allRequestComments));
+  renderRequests();
+}
+
+async function deleteRequestComment(commentId){
+  const comment = allRequestComments.find(c => c.id === commentId);
+  if(!comment || comment.member_name !== currentMember){
+    showToast('본인 댓글만 삭제 가능합니다','error'); return;
+  }
+  allRequestComments = allRequestComments.filter(c => c.id !== commentId);
+  if(demoMode){
+    localStorage.setItem(RC_KEY, JSON.stringify(allRequestComments));
+    renderRequests(); return;
+  }
+  try {
+    await sbFetch(`request_comments?id=eq.${commentId}`, {method:'DELETE'});
+  } catch(e){ console.warn('[deleteRequestComment] 실패:', e.message); }
+  localStorage.setItem(RC_CACHE, JSON.stringify(allRequestComments));
+  renderRequests();
+}
+
+function addRequestModal(){
+  const old = document.getElementById('reqModalOverlay');
+  if(old) old.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'task-modal-overlay';
+  overlay.id = 'reqModalOverlay';
+  overlay.innerHTML = `
+    <div class="task-modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div style="font-family:'Playfair Display',serif;font-size:1.1em;color:var(--teal-dark);">✉️ 요청 추가 → ${viewingMember}</div>
+        <button onclick="document.getElementById('reqModalOverlay').remove()"
+          style="background:none;border:none;font-size:1.3em;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:0.78em;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">제목</label>
+        <input id="reqTitleInput" type="text" placeholder="요청 제목을 입력하세요"
+          style="width:100%;padding:10px 13px;border:2px solid var(--border);border-radius:8px;
+          font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9em;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:0.78em;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;">내용</label>
+        <textarea id="reqContentInput" placeholder="요청 내용을 입력하세요" rows="4"
+          style="width:100%;padding:10px 13px;border:2px solid var(--border);border-radius:8px;
+          font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9em;resize:vertical;outline:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="document.getElementById('reqModalOverlay').remove()">취소</button>
+        <button class="btn btn-save" onclick="submitRequest()">요청 전송</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  setTimeout(()=>{ const el=document.getElementById('reqTitleInput'); if(el) el.focus(); }, 50);
+}
+
+async function submitRequest(){
+  const title = (document.getElementById('reqTitleInput')?.value||'').trim();
+  const content = (document.getElementById('reqContentInput')?.value||'').trim();
+  if(!title){ showToast('제목을 입력해주세요','error'); return; }
+  showLoading('요청 전송 중...');
+  await saveRequest(viewingMember, currentMember, title, content);
+  hideLoading();
+  document.getElementById('reqModalOverlay')?.remove();
+  showToast('✉️ 요청이 전송되었습니다','success');
+  renderRequests();
 }
 
 // ════════════════════════════════════════
@@ -1172,7 +1829,8 @@ ${sections.join('\n\n')}
 // ════════════════════════════════════════
 function goReportScreen(){
   reportFilterMember='ALL'; currentReportId=null; editingReport=false;
-  showScreen('reportScreen'); renderReportScreen();
+  showScreen('reportScreen');
+  renderReportScreen();
 }
 
 function renderReportScreen(){
@@ -1397,6 +2055,107 @@ document.addEventListener('paste',(e)=>{
     }
   }
   if(hasImage) showToast('📎 이미지가 첨부되었습니다','success');
+});
+
+function renderCardButtons(log, task){
+  if(!log || log.member_name !== currentMember) return '';
+  const taskId = task ? (task.task_id || '') : '';
+  return `
+    <div style="display:flex;gap:8px;margin-top:0;">
+      <button onclick="handleCardEdit('${log.id}','${taskId}')"
+        style="padding:6px 14px;background:white;border:1.5px solid #ddd;
+        border-radius:8px;font-size:0.82em;font-weight:600;cursor:pointer;color:#333;">
+        수정
+      </button>
+      <button onclick="confirmDeleteLog('${log.id}')"
+        style="padding:6px 14px;background:var(--red);border:none;
+        border-radius:8px;font-size:0.82em;font-weight:600;cursor:pointer;color:white;">
+        삭제
+      </button>
+    </div>`;
+}
+
+function handleCardEdit(logId, taskId){
+  const log = allLogs.find(l => l.id === logId);
+  if(!log || log.member_name !== currentMember){
+    showToast('본인 기록만 수정 가능합니다','error'); return;
+  }
+
+  const task = taskId ? (log.tasks||[]).find(t => t.task_id === taskId) : null;
+  const targetId = taskId || log.id;
+  const targetContent = task ? (task.content||'') : (log.meetings||'');
+  const targetTitle = task ? (task.title||'') : '';
+
+  const cardEl = document.querySelector(`[data-task-id="${targetId}"]`);
+  if(!cardEl){
+    currentDate = log.log_date;
+    const d = new Date(log.log_date+'T00:00:00');
+    calYear=d.getFullYear(); calMonth=d.getMonth();
+    renderCalendar(); renderMain();
+    return;
+  }
+
+  cardEl.innerHTML = `
+    <div style="padding:4px 0 10px;font-weight:700;font-size:1em;">${escapeHtml(targetTitle)}</div>
+    <div class="quill-wrap" id="edit-quill-wrap-${targetId}">
+      <div id="edit-quill-${targetId}"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button onclick="saveCardEdit('${logId}','${taskId}')"
+        style="padding:7px 18px;background:var(--teal);color:white;border:none;
+        border-radius:8px;font-weight:700;cursor:pointer;">저장</button>
+      <button onclick="renderMain()"
+        style="padding:7px 18px;background:white;color:var(--ink);border:1.5px solid #ddd;
+        border-radius:8px;font-weight:600;cursor:pointer;">취소</button>
+    </div>`;
+
+  const q = new Quill(`#edit-quill-${targetId}`, {
+    theme:'snow',
+    modules:{toolbar:false}
+  });
+  q.root.innerHTML = targetContent;
+  window._editQuill = q;
+}
+
+async function saveCardEdit(logId, taskId){
+  const newContent = window._editQuill ? window._editQuill.root.innerHTML : '';
+  const log = allLogs.find(l => l.id === logId);
+  if(!log) return;
+  showLoading('저장 중...');
+
+  try {
+    let updatedTasks = log.tasks || [];
+    const taskIdx = updatedTasks.findIndex(t => t.task_id === taskId);
+    if(taskIdx >= 0){
+      updatedTasks[taskIdx] = {...updatedTasks[taskIdx], content: newContent};
+      await saveLogData(log.member_name, log.log_date, {tasks: updatedTasks});
+    } else {
+      await saveLogData(log.member_name, log.log_date, {meetings: newContent});
+    }
+    await loadAllLogs();
+    showToast('✅ 수정되었습니다','success');
+    renderMain();
+  } catch(e){
+    console.error('[saveCardEdit]', e);
+    showToast('저장 중 오류가 발생했습니다','error');
+  } finally {
+    hideLoading();
+  }
+}
+
+// 앱 진입 시 히스토리 스택 고정
+window.addEventListener('load', () => {
+  history.replaceState({screen:'app'}, '', '');
+});
+
+window.addEventListener('popstate', (e) => {
+  // 항상 현재 화면 유지 — 외부로 나가지 않음
+  history.pushState({screen:'app'}, '', '');
+
+  // 보고서 화면이면 메인으로
+  if(document.getElementById('reportScreen').classList.contains('active')){
+    showScreen('appScreen');
+  }
 });
 </script>
 </body>
