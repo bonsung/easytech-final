@@ -1150,12 +1150,20 @@ function renderTeamList(){
     </div>`).join('');
 }
 function viewMember(name){
-  viewingMember=name;
-  const isRequestActive = document.getElementById('requestPanel')?.classList.contains('active');
+  viewingMember = name;
+  const activeTab = document.querySelector('.tab.active')?.textContent?.trim();
   renderTeamList();
   renderCalendar();
   renderMain();
-  if(isRequestActive) renderRequests();
+
+  // 요청사항 탭이 활성화 상태였으면 강제로 다시 활성화
+  if(activeTab && activeTab.includes('요청사항')){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('[onclick*="request"]')?.classList.add('active');
+    document.getElementById('requestPanel')?.classList.add('active');
+    renderRequests();
+  }
 }
 
 // ════════════════════════════════════════
@@ -1608,6 +1616,7 @@ function switchTab(name,el){
 //  REQUESTS
 // ════════════════════════════════════════
 function renderRequests(){
+  console.log('renderRequests viewingMember:', viewingMember);
   const isMe = viewingMember === currentMember;
   const btnRow = document.getElementById('addRequestBtnRow');
   if(btnRow) btnRow.style.display = isMe ? 'none' : 'flex';
