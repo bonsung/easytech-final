@@ -1151,11 +1151,11 @@ function renderTeamList(){
 }
 function viewMember(name){
   viewingMember=name;
+  const isRequestActive = document.getElementById('requestPanel')?.classList.contains('active');
   renderTeamList();
   renderCalendar();
   renderMain();
-  const requestPanel=document.getElementById('requestPanel');
-  if(requestPanel && requestPanel.classList.contains('active')) renderRequests();
+  if(isRequestActive) renderRequests();
 }
 
 // ════════════════════════════════════════
