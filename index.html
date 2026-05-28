@@ -1151,19 +1151,11 @@ function renderTeamList(){
 }
 function viewMember(name){
   viewingMember = name;
-  const activeTab = document.querySelector('.tab.active')?.textContent?.trim();
   renderTeamList();
   renderCalendar();
   renderMain();
-
-  // 요청사항 탭이 활성화 상태였으면 강제로 다시 활성화
-  if(activeTab && activeTab.includes('요청사항')){
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('[onclick*="request"]')?.classList.add('active');
-    document.getElementById('requestPanel')?.classList.add('active');
-    renderRequests();
-  }
+  // 요청사항 패널 항상 갱신 (탭 활성화 여부 무관)
+  renderRequests();
 }
 
 // ════════════════════════════════════════
@@ -1185,6 +1177,9 @@ function renderMain(){
     <div class="stat-pill"><span class="num">${taskCount}</span><span class="lbl">총 업무건수</span></div>`;
   renderTaskList();
   renderHistory();
+  // viewingMember 변경 시 요청사항 목록 초기화 (requestList만 비워야 구조 유지)
+  const reqList = document.getElementById('requestList');
+  if(reqList) reqList.innerHTML = '';
 }
 
 // ════════════════════════════════════════
