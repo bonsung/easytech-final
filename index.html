@@ -1154,8 +1154,7 @@ function viewMember(name){
   renderTeamList();
   renderCalendar();
   renderMain();
-  // 요청사항 패널 항상 갱신 (탭 활성화 여부 무관)
-  renderRequests();
+  setTimeout(() => renderRequests(), 50);
 }
 
 // ════════════════════════════════════════
@@ -1177,9 +1176,6 @@ function renderMain(){
     <div class="stat-pill"><span class="num">${taskCount}</span><span class="lbl">총 업무건수</span></div>`;
   renderTaskList();
   renderHistory();
-  // viewingMember 변경 시 요청사항 목록 초기화 (requestList만 비워야 구조 유지)
-  const reqList = document.getElementById('requestList');
-  if(reqList) reqList.innerHTML = '';
 }
 
 // ════════════════════════════════════════
@@ -1612,20 +1608,28 @@ function switchTab(name,el){
 // ════════════════════════════════════════
 function renderRequests(){
   console.log('renderRequests viewingMember:', viewingMember);
-  const isMe = viewingMember === currentMember;
-  const btnRow = document.getElementById('addRequestBtnRow');
-  if(btnRow) btnRow.style.display = isMe ? 'none' : 'flex';
+  const panel = document.getElementById('requestPanel');
+  if(!panel) return;
 
+  const isMe = viewingMember === currentMember;
   const filtered = allRequests
     .filter(r => r.to_member === viewingMember)
     .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
-  const container = document.getElementById('requestList');
+  const addBtn = isMe ? '' : `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+      <button class="btn btn-save" onclick="addRequestModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        요청 추가
+      </button>
+    </div>`;
+
   if(!filtered.length){
-    container.innerHTML = `<div class="empty-state"><div class="icon">✉️</div><div>요청사항이 없습니다.</div></div>`;
+    panel.innerHTML = addBtn + `<div class="empty-state"><div class="icon">✉️</div><div>요청사항이 없습니다.</div></div>`;
     return;
   }
-  container.innerHTML = filtered.map(r => {
+
+  const cardsHtml = filtered.map(r => {
     const m = MEMBERS.find(x => x.name === r.from_member);
     const fromColor = m ? m.color : '#888';
     const canComplete = r.to_member === currentMember && r.status === 'pending';
@@ -1663,6 +1667,8 @@ function renderRequests(){
         </div>
       </div>`;
   }).join('');
+
+  panel.innerHTML = addBtn + cardsHtml;
 }
 
 async function saveRequest(toMember, fromMember, title, content){
