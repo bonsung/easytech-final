@@ -61,11 +61,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:va
 /* Badge dropdown */
 .badge-wrap{position:relative;}
 .badge-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:white;border-radius:12px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:200;min-width:160px;overflow:hidden;}
-.badge-dropdown button{display:block;width:100%;padding:13px 18px;background:none;border:none;
+  box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:200;min-width:180px;overflow:hidden;}
+.badge-dropdown button{display:block;width:100%;padding:10px 18px;background:none;border:none;
   text-align:left;font-size:0.9em;font-weight:600;cursor:pointer;color:var(--ink);
   font-family:'Plus Jakarta Sans',sans-serif;}
 .badge-dropdown button:hover{background:var(--warm);}
+.badge-dd-label{padding:10px 18px 4px;font-size:0.72em;font-weight:700;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;}
+.badge-dd-divider{height:1px;background:var(--border);margin:4px 0;}
+.badge-dd-active{background:var(--warm)!important;}
 
 /* ── MEMBER SCREEN ── */
 #memberScreen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;
@@ -377,6 +380,22 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
   .report-sidebar{display:none;}
   .main-area,.report-main{padding:16px;}
 }
+
+/* ── NOTIFICATION BADGE ── */
+.notif-badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  border-radius:9px;
+  background:var(--red);
+  color:white;
+  font-size:0.68em;
+  font-weight:700;
+  padding:0 4px;
+  margin-left:5px;
+}
 </style>
 </head>
 <body>
@@ -492,7 +511,9 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
           <span style="color:rgba(255,255,255,0.45);font-size:0.8em;margin-left:2px;">▾</span>
         </div>
         <div class="badge-dropdown" id="badgeDropdown" style="display:none;">
-          <button onclick="closeBadgeMenu();goMemberSelect();">팀원 전환</button>
+          <div class="badge-dd-label">팀원 보기</div>
+          <div id="badgeMemberList"></div>
+          <div class="badge-dd-divider"></div>
           <button onclick="closeBadgeMenu();startChangePassword();">비밀번호 변경</button>
         </div>
       </div>
@@ -541,7 +562,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
       <div class="tabs">
         <button class="tab active" onclick="switchTab('write',this)">✏️ 업무 입력</button>
         <button class="tab" onclick="switchTab('history',this)">📚 전체 기록</button>
-        <button class="tab" onclick="switchTab('request',this)">✉️ 요청사항</button>
+        <button id="requestTab" class="tab" onclick="switchTab('request',this)">✉️ 요청사항</button>
       </div>
 
       <!-- WRITE PANEL -->
@@ -873,7 +894,18 @@ function showMemberLoginScreen(name, mode){
 
 function toggleBadgeMenu(){
   const dd=document.getElementById('badgeDropdown');
-  dd.style.display = dd.style.display==='none' ? 'block' : 'none';
+  if(dd.style.display==='none'){
+    document.getElementById('badgeMemberList').innerHTML = MEMBERS.map(m=>`
+      <button class="${m.name===viewingMember?'badge-dd-active':''}"
+              onclick="closeBadgeMenu();viewMember('${m.name}');">
+        <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${m.color};
+          color:#fff;font-size:0.65em;font-weight:700;line-height:20px;text-align:center;
+          margin-right:8px;vertical-align:middle;">${m.init}</span>${m.name}${m.name===currentMember?' <span style="opacity:0.4;font-size:0.78em;font-weight:400;">(나)</span>':''}
+      </button>`).join('');
+    dd.style.display='block';
+  } else {
+    dd.style.display='none';
+  }
 }
 function closeBadgeMenu(){ document.getElementById('badgeDropdown').style.display='none'; }
 function startChangePassword(){ showMemberLoginScreen(currentMember,'verify_for_change'); }
@@ -1003,6 +1035,7 @@ async function fetchFreshData(){
     if(r3.ok){ allRequestComments=await r3.json(); localStorage.setItem(RC_CACHE,JSON.stringify(allRequestComments)); }
     else { console.warn('[fetchFreshData] request_comments 실패: HTTP', r3.status); }
     if(updated) renderMain();
+    else { renderTeamList(); updateNotifBadges(); }
   } catch(e){ console.warn('[fetchFreshData] 네트워크 에러:', e.message); }
 }
 function getLog(member,date){ return allLogs.find(l=>l.member_name===member&&l.log_date===date)||null; }
@@ -1132,49 +1165,93 @@ function selectDate(date){
   const d=new Date(date+'T00:00:00');
   calYear=d.getFullYear(); calMonth=d.getMonth();
   renderCalendar(); renderMain();
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  document.getElementById('writePanel').classList.add('active');
-  document.getElementById('historyPanel').classList.remove('active');
-  document.getElementById('requestPanel').classList.remove('active');
+}
+
+// ════════════════════════════════════════
+//  NOTIFICATION BADGES
+// ════════════════════════════════════════
+function getUnreadCount(fromMember, toMember){
+  const lastSeen = localStorage.getItem(`lastSeen_${fromMember}_${toMember}`) || '2000-01-01';
+
+  const newRequests = allRequests.filter(r =>
+    r.to_member === toMember && r.created_at > lastSeen
+  ).length;
+
+  const newTaskComments = allLogs
+    .filter(l => l.member_name === toMember)
+    .reduce((acc, l) => {
+      const comments = (l.tasks || []).flatMap(t => t.comments || []);
+      return acc + comments.filter(c => c.created_at > lastSeen && c.member_name !== fromMember).length;
+    }, 0);
+
+  const toMemberReqIds = new Set(
+    allRequests.filter(r => r.to_member === toMember).map(r => r.id)
+  );
+  const newReqComments = allRequestComments.filter(c =>
+    toMemberReqIds.has(c.request_id) &&
+    c.created_at > lastSeen &&
+    c.member_name !== fromMember
+  ).length;
+
+  return newRequests + newTaskComments + newReqComments;
+}
+
+function updateNotifBadges(){
+  if(!currentMember) return;
+
+  // 요청사항 탭 배지 (현재 보고 있는 팀원 기준)
+  const reqTab = document.getElementById('requestTab');
+  if(reqTab){
+    const cnt = getUnreadCount(currentMember, viewingMember);
+    reqTab.innerHTML = cnt > 0
+      ? `✉️ 요청사항 <span class="notif-badge">${cnt}</span>`
+      : '✉️ 요청사항';
+  }
+
+  // topbar 전체 합산 배지
+  const total = MEMBERS
+    .filter(m => m.name !== currentMember)
+    .reduce((acc, m) => acc + getUnreadCount(currentMember, m.name), 0);
+  let topBadge = document.getElementById('topbarNotifBadge');
+  if(total > 0){
+    if(!topBadge){
+      topBadge = document.createElement('span');
+      topBadge.id = 'topbarNotifBadge';
+      topBadge.className = 'notif-badge';
+      document.getElementById('topBadgeName').after(topBadge);
+    }
+    topBadge.textContent = total;
+  } else {
+    if(topBadge) topBadge.remove();
+  }
 }
 
 // ════════════════════════════════════════
 //  TEAM LIST
 // ════════════════════════════════════════
 function renderTeamList(){
-  document.getElementById('teamList').innerHTML=MEMBERS.map(m=>`
+  document.getElementById('teamList').innerHTML=MEMBERS.map(m=>{
+    const cnt = currentMember ? getUnreadCount(currentMember, m.name) : 0;
+    const badge = cnt > 0 ? `<span class="notif-badge">${cnt}</span>` : '';
+    return `
     <div class="team-item ${m.name===viewingMember?'active':''}" onclick="viewMember('${m.name}')">
       <div class="team-dot" style="background:${m.color}"></div>
       <span>${m.name}</span>
       ${m.name===currentMember?'<span style="font-size:0.68em;opacity:0.5;">(나)</span>':''}
-    </div>`).join('');
+      ${badge}
+    </div>`;
+  }).join('');
 }
 function viewMember(name){
+  if(currentMember) localStorage.setItem(`lastSeen_${currentMember}_${name}`, new Date().toISOString());
   viewingMember = name;
-
-  // 현재 활성 탭 인덱스 저장
-  const tabs = document.querySelectorAll('.tab');
-  let activeTabIndex = 0;
-  tabs.forEach((t,i) => { if(t.classList.contains('active')) activeTabIndex = i; });
-
   renderTeamList();
   renderCalendar();
-  renderMain(); // 이 함수가 탭을 0번(업무입력)으로 초기화함
+  renderMain();
 
-  // 이전 탭으로 복원
-  if(activeTabIndex > 0){
-    const allTabs = document.querySelectorAll('.tab');
-    const allPanels = document.querySelectorAll('.panel');
-    allTabs.forEach(t => t.classList.remove('active'));
-    allPanels.forEach(p => p.classList.remove('active'));
-    if(allTabs[activeTabIndex]) allTabs[activeTabIndex].classList.add('active');
-    if(allPanels[activeTabIndex]) allPanels[activeTabIndex].classList.add('active');
-
-    // 요청사항 탭(인덱스 2)이면 renderRequests 호출
-    if(activeTabIndex === 2) setTimeout(() => renderRequests(), 30);
-    // 전체기록 탭(인덱스 1)이면 renderHistory 호출
-    if(activeTabIndex === 1) renderHistory();
-  }
+  // 현재 active 탭 버튼을 직접 찾아서 다시 클릭
+  const activeTab = document.querySelector('.tab.active');
+  if(activeTab) activeTab.click();
 }
 
 // ════════════════════════════════════════
@@ -1196,6 +1273,14 @@ function renderMain(){
     <div class="stat-pill"><span class="num">${taskCount}</span><span class="lbl">총 업무건수</span></div>`;
   renderTaskList();
   renderHistory();
+  // 탭 초기화는 날짜 변경 시에만, 팀원 변경 시에는 하지 않음
+  if(!window._keepTab){
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+    document.getElementById('writePanel').classList.add('active');
+    document.getElementById('historyPanel').classList.remove('active');
+    document.getElementById('requestPanel').classList.remove('active');
+  }
+  updateNotifBadges();
 }
 
 // ════════════════════════════════════════
