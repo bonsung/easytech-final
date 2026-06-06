@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Easytech Team Report</title>
+<title>Easytech TeamWork</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
@@ -396,29 +396,66 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
   padding:0 4px;
   margin-left:5px;
 }
+
+/* ── NOTICES SIDEBAR ── */
+.notice-sidebar-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.notice-sidebar-label-row .sidebar-label{margin-bottom:0;}
+.notice-add-btn{width:100%;margin-top:7px;padding:7px 0;background:rgba(255,255,255,0.1);
+  border:1px dashed rgba(255,255,255,0.28);border-radius:8px;color:rgba(255,255,255,0.65);
+  font-size:0.78em;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all 0.15s;letter-spacing:0.3px;}
+.notice-add-btn:hover{background:rgba(255,255,255,0.2);color:white;}
+.notice-item{padding:7px 10px;border-radius:9px;cursor:pointer;display:flex;align-items:flex-start;
+  gap:7px;color:rgba(255,255,255,0.72);font-size:0.82em;transition:all 0.12s;}
+.notice-item:hover{background:rgba(255,255,255,0.1);color:white;}
+.notice-dot{width:7px;height:7px;border-radius:50%;background:white;flex-shrink:0;
+  margin-top:4px;opacity:0;transition:opacity 0.15s;}
+.notice-dot.unread{opacity:1;}
+.notice-item-info{flex:1;min-width:0;}
+.notice-item-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.notice-item-date{font-size:0.81em;color:rgba(255,255,255,0.38);margin-top:1px;}
+
+/* ── NOTICE MODAL ── */
+.notice-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;
+  align-items:center;justify-content:center;z-index:700;}
+.notice-overlay.show{display:flex;}
+.notice-modal{background:white;border-radius:18px;padding:28px;width:90%;max-width:540px;
+  max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);}
+.notice-modal-title{font-family:'Playfair Display',serif;font-size:1.15em;color:var(--teal-dark);margin-bottom:0;}
+.notice-field-label{font-size:0.73em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+  color:var(--muted);display:block;margin-bottom:5px;}
+.notice-field-input{width:100%;padding:10px 13px;border:2px solid var(--border);border-radius:8px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9em;outline:none;
+  transition:border-color 0.2s;box-sizing:border-box;}
+.notice-field-input:focus{border-color:var(--teal);}
+.notice-textarea{resize:vertical;min-height:100px;}
+.notice-detail-head{margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.notice-detail-title-text{font-family:'Playfair Display',serif;font-size:1.08em;color:var(--ink);margin-bottom:4px;}
+.notice-detail-meta{font-size:0.78em;color:var(--muted);}
+.notice-detail-body{font-size:0.9em;line-height:1.85;color:var(--ink);white-space:pre-wrap;margin-bottom:18px;}
 </style>
 </head>
 <body>
 
 <!-- ══ PIN SCREEN ══ -->
-<div id="pinScreen" class="screen active">
+<div id="pinScreen" class="screen">
   <div class="pin-card">
     <div class="pin-logo">📋</div>
-    <div class="pin-title">Team Daily Report</div>
-    <div class="pin-sub">Easytech 팀 업무 시스템</div>
-    <label class="pin-label" for="pinInput">비밀번호</label>
+    <div class="pin-title">TeamWork</div>
+    <div class="pin-sub">Easytech团队工作系统</div>
+    <label class="pin-label" for="pinInput">请输入PIN码</label>
     <input type="password" id="pinInput" class="pin-input"
       placeholder="••••" autofocus autocomplete="current-password"
       oninput="localStorage.setItem('savedPin', this.value)">
-    <button class="pin-login-btn" onclick="checkPin()">로그인</button>
-    <div class="pin-error" id="pinError">비밀번호가 틀렸습니다.</div>
+    <button class="pin-login-btn" onclick="checkPin()">登录</button>
+    <div class="pin-error" id="pinError">PIN码错误，请重试</div>
   </div>
 </div>
 
 <!-- ══ MEMBER SCREEN ══ -->
 <div id="memberScreen" class="screen">
-  <div class="member-title">Team Daily Report</div>
-  <div class="member-subtitle">팀원을 선택해주세요</div>
+  <div class="member-title">TeamWork</div>
+  <div class="member-subtitle">请选择团队成员</div>
   <div class="member-grid">
     <div class="member-card" onclick="selectMember('JP')">
       <div class="member-avatar avatar-jp">JP</div>
@@ -503,7 +540,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 <div id="appScreen" class="screen">
   <div class="topbar">
     <div class="topbar-left">
-      <div class="topbar-logo">📋 Daily Report</div>
+      <div class="topbar-logo">📋 TeamWork</div>
       <div class="badge-wrap">
         <div class="member-badge" onclick="toggleBadgeMenu()">
           <div class="badge-av" id="topBadgeAv"></div>
@@ -511,7 +548,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
           <span style="color:rgba(255,255,255,0.45);font-size:0.8em;margin-left:2px;">▾</span>
         </div>
         <div class="badge-dropdown" id="badgeDropdown" style="display:none;">
-          <div class="badge-dd-label">팀원 보기</div>
+          <div class="badge-dd-label">团队成员</div>
           <div id="badgeMemberList"></div>
           <div class="badge-dd-divider"></div>
           <button onclick="closeBadgeMenu();startChangePassword();">비밀번호 변경</button>
@@ -521,7 +558,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
     <div class="topbar-right">
       <button class="icon-btn btn-reports-nav" onclick="goReportScreen()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        보고서 관리
+        报告管理
       </button>
     </div>
   </div>
@@ -537,15 +574,23 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
         <div class="cal-grid" id="calGrid"></div>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-label">검색</div>
+        <div class="sidebar-label">搜索</div>
         <div class="search-wrap">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input id="searchInput" placeholder="업무 내용 검색..." oninput="doSearch()"/>
         </div>
         <div id="searchResults" class="search-results"></div>
       </div>
+      <div class="sidebar-section" id="noticeSection">
+        <div class="notice-sidebar-label-row">
+          <div class="sidebar-label">公告</div>
+          <span class="notif-badge" id="noticeBadge" style="display:none;margin-left:0;"></span>
+        </div>
+        <div id="noticeList"></div>
+        <button class="notice-add-btn" onclick="openNoticeWrite()">+ 新公告</button>
+      </div>
       <div class="sidebar-section">
-        <div class="sidebar-label">팀원 보기</div>
+        <div class="sidebar-label">团队成员</div>
         <div class="team-list" id="teamList"></div>
       </div>
     </aside>
@@ -560,9 +605,9 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
       </div>
       <div class="stats-row" id="statsRow"></div>
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('write',this)">✏️ 업무 입력</button>
-        <button class="tab" onclick="switchTab('history',this)">📚 전체 기록</button>
-        <button id="requestTab" class="tab" onclick="switchTab('request',this)">✉️ 요청사항</button>
+        <button class="tab active" onclick="switchTab('write',this)">✏️ 工作输入</button>
+        <button class="tab" onclick="switchTab('history',this)">📚 全部记录</button>
+        <button id="requestTab" class="tab" onclick="switchTab('request',this)">✉️ 申请事项</button>
       </div>
 
       <!-- WRITE PANEL -->
@@ -570,11 +615,11 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
         <div id="addTaskBtnRow" style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px;">
           <button class="btn btn-report" onclick="generateReport()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            보고서 생성
+            生成报告
           </button>
           <button class="btn btn-save" onclick="addTaskModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            업무 추가
+            添加工作
           </button>
         </div>
         <div id="taskListContainer"></div>
@@ -605,34 +650,61 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
     <div class="report-topbar-left">
       <button class="back-btn" onclick="goBack()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        메인으로
+        返回主页
       </button>
-      <div class="report-topbar-title">📊 보고서 관리</div>
+      <div class="report-topbar-title">📊 报告管理</div>
     </div>
     <div class="report-topbar-right">
       <button class="icon-btn btn-excel" onclick="exportAllExcel()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6m0-6-6 6"/></svg>
-        전체 엑셀
+        全部导出
       </button>
     </div>
   </div>
 
   <div class="report-layout">
     <aside class="report-sidebar">
-      <div class="report-sidebar-title">팀원 필터</div>
+      <div class="report-sidebar-title">成员筛选</div>
       <div class="member-filter" id="reportMemberFilter"></div>
-      <div class="report-sidebar-title" style="margin-top:14px;">보고서 목록</div>
+      <div class="report-sidebar-title" style="margin-top:14px;">报告列表</div>
       <div id="reportSideList"></div>
     </aside>
     <main class="report-main">
       <div id="reportContent">
         <div class="report-empty">
           <div class="icon">📄</div>
-          <p>왼쪽에서 보고서를 선택해주세요</p>
+          <p>请从左侧选择报告</p>
         </div>
       </div>
     </main>
   </div>
+</div>
+
+<!-- ══ NOTICE WRITE MODAL ══ -->
+<div class="notice-overlay" id="noticeWriteOverlay">
+  <div class="notice-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div class="notice-modal-title">📢 新公告</div>
+      <button onclick="closeNoticeWrite()" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label class="notice-field-label">标题</label>
+      <input type="text" id="noticeTitleInput" class="notice-field-input" placeholder="공지 제목을 입력하세요">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label class="notice-field-label">内容</label>
+      <textarea id="noticeBodyInput" class="notice-field-input notice-textarea" placeholder="공지 내용을 입력하세요" rows="5"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeNoticeWrite()">取消</button>
+      <button class="btn btn-save" onclick="submitNotice()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NOTICE DETAIL MODAL ══ -->
+<div class="notice-overlay" id="noticeDetailOverlay">
+  <div class="notice-modal" id="noticeDetailBox"></div>
 </div>
 
 <!-- TOAST -->
@@ -640,16 +712,16 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 <!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner" style="width:40px;height:40px;border-width:3px;"></div>
-  <div class="loading-text" id="loadingText">처리 중...</div>
+  <div class="loading-text" id="loadingText">处理中...</div>
 </div>
 <!-- CONFIRM -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
-    <div class="confirm-title" id="confirmTitle">삭제 확인</div>
-    <div class="confirm-msg" id="confirmMsg">정말 삭제하시겠습니까?</div>
+    <div class="confirm-title" id="confirmTitle">确认删除</div>
+    <div class="confirm-msg" id="confirmMsg">确定要删除吗？</div>
     <div class="confirm-btns">
-      <button class="btn btn-outline" onclick="closeConfirm()">취소</button>
-      <button class="btn btn-danger" id="confirmOkBtn">삭제</button>
+      <button class="btn btn-outline" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger" id="confirmOkBtn">删除</button>
     </div>
   </div>
 </div>
@@ -675,6 +747,7 @@ const DEMO_KEY = 'teamReport_v7';
 const SB_CACHE = 'sb_logs_v1';
 const SB_REQ_CACHE = 'sb_req_v1';
 const RC_CACHE = 'rc_cache_v1';
+const NOTICES_KEY = 'teamReport_notices';
 
 let demoMode = false;
 let sbUrl = '', sbKey = '';
@@ -686,6 +759,8 @@ let calMonth = new Date().getMonth();
 let allLogs = [];
 let allRequests = [];
 let allRequestComments = [];
+let allNotices = [];
+let currentNoticeId = null;
 const REQ_KEY = 'requests_v1';
 const RC_KEY = 'req_comments_v1';
 let emailDomain = '';
@@ -732,7 +807,7 @@ function showToast(msg,type=''){
   t.textContent=msg; t.className='toast show '+type;
   setTimeout(()=>t.className='toast',2800);
 }
-function showLoading(msg='처리 중...'){
+function showLoading(msg='处理中...'){
   document.getElementById('loadingText').textContent=msg;
   document.getElementById('loadingOverlay').classList.add('show');
 }
@@ -774,7 +849,7 @@ async function checkPin(){
   const val = document.getElementById('pinInput').value;
   if(val !== CONFIG.PIN){ document.getElementById('pinError').style.display='block'; return; }
   document.getElementById('pinError').style.display='none';
-  showLoading('연결 중...');
+  showLoading('连接中...');
   await connectSB();
 }
 async function connectSB(){
@@ -786,7 +861,7 @@ async function connectSB(){
     demoMode=false; hideLoading(); showScreen('memberScreen');
   } catch(e){
     demoMode=true; hideLoading();
-    showToast('서버 연결 실패 — 로컬 모드','error');
+    showToast('服务器连接失败，本地模式运行','error');
     showScreen('memberScreen');
   }
 }
@@ -900,7 +975,7 @@ function toggleBadgeMenu(){
               onclick="closeBadgeMenu();viewMember('${m.name}');">
         <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${m.color};
           color:#fff;font-size:0.65em;font-weight:700;line-height:20px;text-align:center;
-          margin-right:8px;vertical-align:middle;">${m.init}</span>${m.name}${m.name===currentMember?' <span style="opacity:0.4;font-size:0.78em;font-weight:400;">(나)</span>':''}
+          margin-right:8px;vertical-align:middle;">${m.init}</span>${m.name}${m.name===currentMember?' <span style="opacity:0.4;font-size:0.78em;font-weight:400;">(我)</span>':''}
       </button>`).join('');
     dd.style.display='block';
   } else {
@@ -949,6 +1024,7 @@ async function initApp(){
   allRequests = JSON.parse(localStorage.getItem(reqCacheKey) || '[]');
   allRequestComments = JSON.parse(localStorage.getItem(demoMode ? RC_KEY : RC_CACHE) || '[]');
   renderMain();
+  loadNotices();
   // Phase 2: Supabase에서 최신 데이터 백그라운드 로드
   if(!demoMode) fetchFreshData();
 }
@@ -970,7 +1046,7 @@ async function loadAllLogs(){
     localStorage.setItem(SB_CACHE, JSON.stringify(allLogs));
   } catch(e){
     console.warn('[loadAllLogs] daily_logs 로딩 실패:', e.message);
-    showToast('로드 실패','error');
+    showToast('加载失败','error');
     allLogs=JSON.parse(localStorage.getItem(SB_CACHE)||'[]');
   }
   try {
@@ -1041,6 +1117,15 @@ async function fetchFreshData(){
 function getLog(member,date){ return allLogs.find(l=>l.member_name===member&&l.log_date===date)||null; }
 function getLogs(member,date){ return allLogs.filter(l=>l.member_name===member&&l.log_date===date); }
 
+function applyLocalLog(member, date, fields) {
+  const idx = allLogs.findIndex(l => l.member_name === member && l.log_date === date);
+  const now = new Date().toISOString();
+  if (idx >= 0) {
+    allLogs[idx] = { ...allLogs[idx], ...fields, updated_at: now };
+  } else {
+    allLogs.unshift({ id: 'temp_' + Date.now(), member_name: member, log_date: date, ...fields, updated_at: now });
+  }
+}
 async function saveLogData(member, date, fields){
   if(demoMode){
     const idx=allLogs.findIndex(l=>l.member_name===member&&l.log_date===date);
@@ -1058,7 +1143,7 @@ async function saveLogData(member, date, fields){
       if(!r.ok) throw new Error();
     }
     return true;
-  } catch(e){ showToast('저장 실패','error'); return false; }
+  } catch(e){ showToast('保存失败','error'); return false; }
 }
 
 async function deleteLog(id){
@@ -1070,7 +1155,7 @@ async function deleteLog(id){
     const r=await sbFetch(`daily_logs?id=eq.${id}`,{method:'DELETE'});
     if(!r.ok) throw new Error();
     return true;
-  } catch(e){ showToast('삭제 실패','error'); return false; }
+  } catch(e){ showToast('删除失败','error'); return false; }
 }
 
 async function confirmDeleteLog(id){
@@ -1080,15 +1165,15 @@ async function confirmDeleteLog(id){
     showToast('본인 기록만 삭제 가능합니다','error'); return;
   }
   showConfirm(
-    '기록 삭제',
-    `${fmtShort(log.log_date)} 업무 기록을 삭제하시겠습니까?`,
+    '确认删除',
+    `${fmtShort(log.log_date)} 确定要删除此记录吗？`,
     async () => {
-      showLoading('삭제 중...');
+      showLoading('删除中...');
       const ok = await deleteLog(id);
       await loadAllLogs();
       hideLoading();
       if(ok){
-        showToast('🗑️ 삭제되었습니다','success');
+        showToast('🗑️ 删除成功','success');
         renderCalendar();
         renderMain();
       }
@@ -1100,10 +1185,10 @@ async function confirmDeleteTask(id){
   const log = allLogs.find(l => l.id === id);
   if(!log) return;
   showConfirm(
-    '기록 삭제',
-    `${fmtShort(log.log_date)} 기록을 삭제하시겠습니까?`,
+    '确认删除',
+    `${fmtShort(log.log_date)} 确定要删除此记录吗？`,
     async () => {
-      showLoading('삭제 중...');
+      showLoading('删除中...');
       const ok = await deleteLog(id);
       await loadAllLogs();
       hideLoading();
@@ -1237,7 +1322,7 @@ function renderTeamList(){
     <div class="team-item ${m.name===viewingMember?'active':''}" onclick="viewMember('${m.name}')">
       <div class="team-dot" style="background:${m.color}"></div>
       <span>${m.name}</span>
-      ${m.name===currentMember?'<span style="font-size:0.68em;opacity:0.5;">(나)</span>':''}
+      ${m.name===currentMember?'<span style="font-size:0.68em;opacity:0.5;">(我)</span>':''}
       ${badge}
     </div>`;
   }).join('');
@@ -1263,14 +1348,14 @@ function renderMain(){
   document.getElementById('mainDateSub').textContent=fmtDate(currentDate);
   const m=MEMBERS.find(x=>x.name===viewingMember);
   const isMe=viewingMember===currentMember;
-  document.getElementById('viewingBadge').innerHTML=`<div class="viewing-badge" style="background:${m.color}">${m.init} ${viewingMember}${isMe?' (나)':''}</div>`;
+  document.getElementById('viewingBadge').innerHTML=`<div class="viewing-badge" style="background:${m.color}">${m.init} ${viewingMember}${isMe?' (我)':''}</div>`;
   const memberLogs=allLogs.filter(l=>l.member_name===viewingMember);
   const thisMonth=memberLogs.filter(l=>l.log_date.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).length;
   const taskCount=memberLogs.reduce((acc,l)=>acc+(l.tasks?.length||0),0);
   document.getElementById('statsRow').innerHTML=`
-    <div class="stat-pill"><span class="num">${memberLogs.length}</span><span class="lbl">전체 기록</span></div>
-    <div class="stat-pill"><span class="num">${thisMonth}</span><span class="lbl">이번 달</span></div>
-    <div class="stat-pill"><span class="num">${taskCount}</span><span class="lbl">총 업무건수</span></div>`;
+    <div class="stat-pill"><span class="num">${memberLogs.length}</span><span class="lbl">全部记录</span></div>
+    <div class="stat-pill"><span class="num">${thisMonth}</span><span class="lbl">本月</span></div>
+    <div class="stat-pill"><span class="num">${taskCount}</span><span class="lbl">总工作数</span></div>`;
   renderTaskList();
   renderHistory();
   // 탭 초기화는 날짜 변경 시에만, 팀원 변경 시에는 하지 않음
@@ -1303,7 +1388,7 @@ function renderTaskList(){
   );
 
   if(!allTaskPairs.length){
-    container.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>${isMe?'업무를 추가해보세요':'등록된 업무가 없습니다'}</p></div>`;
+    container.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>${isMe?'请添加工作内容':'暂无工作记录'}</p></div>`;
     return;
   }
   container.innerHTML=allTaskPairs.map(({log,task})=>renderTaskCard(log,task,isMe)).join('');
@@ -1342,13 +1427,13 @@ function renderTaskCard(log,task,isMe){
     <div class="task-content ql-editor" style="padding:0;">${task.content||''}</div>
     ${attachments.length?`<div class="attach-grid" style="margin-bottom:12px;">${imgsHtml}${filesHtml}</div>`:''}
     <div class="comment-section">
-      <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 댓글 ${comments.length}건</div>
+      <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 评论 ${comments.length}条</div>
       ${commentsHtml}
       ${!isLegacy?`<div class="comment-input-row">
         <input type="text" class="comment-input" id="ci-${taskId}"
           placeholder="댓글을 입력하세요..."
           onkeydown="if(event.key==='Enter')addComment('${logId}','${taskId}')">
-        <button class="btn btn-save btn-sm" onclick="addComment('${logId}','${taskId}')">등록</button>
+        <button class="btn btn-save btn-sm" onclick="addComment('${logId}','${taskId}')">提交</button>
       </div>`:'<div style="font-size:0.78em;color:var(--muted);margin-top:6px;">이전 기록 형식 — 댓글 미지원</div>'}
     </div>
   </div>`;
@@ -1374,7 +1459,7 @@ function addTaskModal(taskId){
   overlay.innerHTML=`
     <div class="task-modal">
       <div style="font-family:'Playfair Display',serif;font-size:1.15em;color:var(--teal-dark);margin-bottom:18px;">
-        ${taskId?'✏️ 업무 수정':'➕ 업무 추가'}
+        ${taskId?'✏️ 修改工作':'➕ 添加工作'}
       </div>
       <div style="margin-bottom:12px;">
         <label style="font-size:0.73em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">업무 제목</label>
@@ -1388,7 +1473,7 @@ function addTaskModal(taskId){
         <div class="quill-wrap" id="modalQuillWrap"><div id="modalQuillEl"></div></div>
       </div>
       <div style="margin-bottom:16px;">
-        <label style="font-size:0.73em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">📎 파일 첨부</label>
+        <label style="font-size:0.73em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);display:block;margin-bottom:5px;">📎 附件</label>
         <div class="upload-area" style="padding:12px;"
           onclick="document.getElementById('modalFileInput').click()"
           ondragover="event.preventDefault()" ondrop="handleModalDrop(event)">
@@ -1400,8 +1485,8 @@ function addTaskModal(taskId){
         <div class="attach-grid" id="modalAttachPreview"></div>
       </div>
       <div style="display:flex;gap:9px;justify-content:flex-end;">
-        <button class="btn btn-outline" onclick="closeTaskModal()">취소</button>
-        <button class="btn btn-save" onclick="saveTask('${taskId||''}')">저장</button>
+        <button class="btn btn-outline" onclick="closeTaskModal()">取消</button>
+        <button class="btn btn-save" onclick="saveTask('${taskId||''}')">保存</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -1456,44 +1541,61 @@ function renderModalAttachments(){
 function removeModalAttach(i){ modalAttachments.splice(i,1); renderModalAttachments(); }
 
 async function saveTask(taskId){
-  taskId=taskId||null;
-  const titleEl=document.getElementById('taskTitleInput');
-  const title=(titleEl?titleEl.value:'').trim();
-  if(!title){ showToast('업무 제목을 입력하세요','error'); return; }
-
-  const content=modalQuill?(modalQuill.getText().trim()?modalQuill.root.innerHTML:''):'';
-  showLoading('저장 중...');
-
-  const existingLog=getLog(currentMember,currentDate);
-  let tasks=existingLog?[...(existingLog.tasks||[])]:[];
-
-  if(taskId){
-    const idx=tasks.findIndex(t=>t.task_id===taskId);
-    if(idx>=0) tasks[idx]={...tasks[idx],title,content,attachments:[...modalAttachments],updated_at:new Date().toISOString()};
-  } else {
-    tasks.push({
-      task_id:genUUID(),title,content,
-      attachments:[...modalAttachments],
-      comments:[],
-      created_at:new Date().toISOString(),
-      updated_at:new Date().toISOString()
-    });
+    if(saveTask._saving) return;
+    saveTask._saving=true;
+    taskId=taskId||null;
+    const titleEl=document.getElementById('taskTitleInput');
+    const title=(titleEl?titleEl.value:'').trim();
+    if(!title){ showToast('업무 제목을 입력하세요','error'); saveTask._saving=false; return; }
+    const content=modalQuill?(modalQuill.getText().trim()?modalQuill.root.innerHTML:''):'';
+    const existingLog=getLog(currentMember,currentDate);
+    const snapshot=existingLog?{...existingLog}:null;
+    let tasks=existingLog?[...(existingLog.tasks||[])]:[];
+    if(taskId){
+      const idx=tasks.findIndex(t=>t.task_id===taskId);
+      if(idx>=0) tasks[idx]={...tasks[idx],title,content,attachments:[...modalAttachments],updated_at:new Date().toISOString()};
+    } else {
+      tasks.push({
+        task_id:genUUID(),title,content,
+        attachments:[...modalAttachments],
+        comments:[],
+        created_at:new Date().toISOString(),
+        updated_at:new Date().toISOString()
+      });
+    }
+    const now=new Date().toISOString();
+    const logIdx=allLogs.findIndex(l=>l.member_name===currentMember&&l.log_date===currentDate);
+    if(logIdx>=0){ allLogs[logIdx]={...allLogs[logIdx],tasks,updated_at:now}; }
+    else { allLogs.unshift({id:'temp_'+Date.now(),member_name:currentMember,log_date:currentDate,tasks,updated_at:now}); }
+    renderCalendar();
+    renderTaskList();
+    closeTaskModal();
+    showToast('✅ 保存成功','success');
+    saveTask._saving=false;
+    const ok=await saveLogData(currentMember,currentDate,{tasks});
+    if(!ok){
+      if(snapshot){ const i=allLogs.findIndex(l=>l.member_name===currentMember&&l.log_date===currentDate); if(i>=0) allLogs[i]=snapshot; }
+      else { allLogs=allLogs.filter(l=>!(l.member_name===currentMember&&l.log_date===currentDate)); }
+      renderCalendar();
+      renderTaskList();
+      showToast('❌ 저장 실패 — 재시도 해주세요','error');
+    } else {
+      const tempIdx=allLogs.findIndex(l=>l.id?.startsWith('temp_')&&l.member_name===currentMember&&l.log_date===currentDate);
+      if(tempIdx>=0){
+        try{
+          const r=await sbFetch(`daily_logs?member_name=eq.${currentMember}&log_date=eq.${currentDate}&select=id&limit=1`);
+          if(r.ok){const d=await r.json();if(d[0]?.id) allLogs[tempIdx].id=d[0].id;}
+        }catch(e){}
+      }
+    }
   }
-
-  const ok=await saveLogData(currentMember,currentDate,{tasks});
-  await loadAllLogs();
-  renderCalendar();
-  renderTaskList();
-  hideLoading();
-  if(ok){ closeTaskModal(); showToast('✅ 저장되었습니다','success'); }
-}
 
 // ════════════════════════════════════════
 //  DELETE TASK
 // ════════════════════════════════════════
 async function deleteTask(logId,taskId){
-  showConfirm('업무 삭제','이 업무를 삭제하시겠습니까?',async()=>{
-    showLoading('삭제 중...');
+  showConfirm('确认删除','确定要删除此工作吗？',async()=>{
+    showLoading('删除中...');
     const log=allLogs.find(l=>l.id===logId);
     if(!log){ hideLoading(); return; }
     const tasks=(log.tasks||[]).filter(t=>t.task_id!==taskId);
@@ -1505,7 +1607,7 @@ async function deleteTask(logId,taskId){
     renderTaskList();
     renderHistory();
     hideLoading();
-    if(ok) showToast('🗑️ 삭제되었습니다','success');
+    if(ok) showToast('🗑️ 删除成功','success');
   });
 }
 
@@ -1513,40 +1615,53 @@ async function deleteTask(logId,taskId){
 //  COMMENTS
 // ════════════════════════════════════════
 async function addComment(logId,taskId){
-  const input=document.getElementById('ci-'+taskId);
-  if(!input) return;
-  const text=input.value.trim();
-  if(!text) return;
-  showLoading('댓글 저장 중...');
-  const log=allLogs.find(l=>l.id===logId);
-  if(!log){ hideLoading(); return; }
-  const tasks=[...(log.tasks||[])];
-  const idx=tasks.findIndex(t=>t.task_id===taskId);
-  if(idx<0){ hideLoading(); return; }
-  const comments=[...(tasks[idx].comments||[])];
-  comments.push({comment_id:genUUID(),author:currentMember,text,created_at:new Date().toISOString()});
-  tasks[idx]={...tasks[idx],comments};
-  const ok=await saveLogData(log.member_name,log.log_date,{tasks});
-  await loadAllLogs();
-  renderTaskList();
-  hideLoading();
-  if(ok) showToast('💬 댓글이 등록되었습니다','success');
-}
+    const input=document.getElementById('ci-'+taskId);
+    if(!input) return;
+    const text=input.value.trim();
+    if(!text) return;
+    const log=allLogs.find(l=>l.id===logId);
+    if(!log) return;
+    const snapshot={...log,tasks:[...(log.tasks||[]).map(t=>({...t,comments:[...(t.comments||[])]}))]};
+    const tasks=[...(log.tasks||[])];
+    const idx=tasks.findIndex(t=>t.task_id===taskId);
+    if(idx<0) return;
+    const comments=[...(tasks[idx].comments||[])];
+    comments.push({comment_id:genUUID(),author:currentMember,text,created_at:new Date().toISOString()});
+    tasks[idx]={...tasks[idx],comments};
+    const logIdx=allLogs.findIndex(l=>l.id===logId);
+    if(logIdx>=0) allLogs[logIdx]={...allLogs[logIdx],tasks};
+    input.value='';
+    renderTaskList();
+    showToast('💬 댓글이 등록되었습니다','success');
+    const ok=await saveLogData(log.member_name,log.log_date,{tasks});
+    if(!ok){
+      const i=allLogs.findIndex(l=>l.id===logId);
+      if(i>=0) allLogs[i]=snapshot;
+      renderTaskList();
+      showToast('❌ 댓글 저장 실패 — 재시도 해주세요','error');
+    }
+  }
 
 async function deleteComment(logId,taskId,commentId){
-  showLoading('삭제 중...');
-  const log=allLogs.find(l=>l.id===logId);
-  if(!log){ hideLoading(); return; }
-  const tasks=[...(log.tasks||[])];
-  const idx=tasks.findIndex(t=>t.task_id===taskId);
-  if(idx<0){ hideLoading(); return; }
-  const comments=(tasks[idx].comments||[]).filter(c=>c.comment_id!==commentId);
-  tasks[idx]={...tasks[idx],comments};
-  await saveLogData(log.member_name,log.log_date,{tasks});
-  await loadAllLogs();
-  renderTaskList();
-  hideLoading();
-}
+    const log=allLogs.find(l=>l.id===logId);
+    if(!log) return;
+    const snapshot={...log,tasks:[...(log.tasks||[]).map(t=>({...t,comments:[...(t.comments||[])]}))]};
+    const tasks=[...(log.tasks||[])];
+    const idx=tasks.findIndex(t=>t.task_id===taskId);
+    if(idx<0) return;
+    const comments=(tasks[idx].comments||[]).filter(c=>c.comment_id!==commentId);
+    tasks[idx]={...tasks[idx],comments};
+    const logIdx=allLogs.findIndex(l=>l.id===logId);
+    if(logIdx>=0) allLogs[logIdx]={...allLogs[logIdx],tasks};
+    renderTaskList();
+    const ok=await saveLogData(log.member_name,log.log_date,{tasks});
+    if(!ok){
+      const i=allLogs.findIndex(l=>l.id===logId);
+      if(i>=0) allLogs[i]=snapshot;
+      renderTaskList();
+      showToast('❌ 삭제 실패 — 재시도 해주세요','error');
+    }
+  }
 
 // ════════════════════════════════════════
 //  HISTORY
@@ -1559,7 +1674,7 @@ function renderHistory(){
     .sort((a, b) => b.log_date.localeCompare(a.log_date));
 
   if(!logs.length){
-    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>아직 기록이 없습니다</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无记录</p></div>';
     return;
   }
 
@@ -1596,7 +1711,7 @@ function renderHistory(){
   });
 
   if(!visibleLogs.length){
-    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>아직 기록이 없습니다</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无记录</p></div>';
     return;
   }
 
@@ -1622,7 +1737,7 @@ function renderHistory(){
     const othersText   = stripHtml(l.others   || '').trim();
 
     if(meetingsText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
-      <span style="font-weight:700;color:var(--teal);">📝 업무:</span> ${meetingsText.slice(0,100)}
+      <span style="font-weight:700;color:var(--teal);">📝 工作:</span> ${meetingsText.slice(0,100)}
     </div>`);
     if(callsText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
       <span style="font-weight:700;color:#3b6ea8;">📞 통화:</span> ${callsText.slice(0,100)}
@@ -1631,12 +1746,12 @@ function renderHistory(){
       <span style="font-weight:700;color:#2e9e6b;">💬 SNS:</span> ${snsText.slice(0,100)}
     </div>`);
     if(othersText) lines.push(`<div style="font-size:0.84em;margin:3px 0;">
-      <span style="font-weight:700;color:var(--muted);">🗒️ 기타:</span> ${othersText.slice(0,100)}
+      <span style="font-weight:700;color:var(--muted);">🗒️ 其他:</span> ${othersText.slice(0,100)}
     </div>`);
 
     const contentHtml = lines.join('');
     const tags = [];
-    if(l.report) tags.push(['보고서', false]);
+    if(l.report) tags.push(['报告', false]);
     const imgs = (l.attachments||[]).filter(a => a.type==='image').slice(0,3)
       .map(a => `<img src="${a.data}" class="hcard-img">`).join('');
     const m = MEMBERS.find(x => x.name === l.member_name);
@@ -1662,12 +1777,12 @@ document.addEventListener('click',()=>{ document.querySelectorAll('.hcard-dropdo
 async function deleteHistoryLog(id){
   const log=allLogs.find(l=>l.id===id);
   if(!log||log.member_name!==currentMember){ showToast('본인 기록만 삭제 가능합니다','error'); return; }
-  showConfirm('기록 삭제',`${fmtShort(log.log_date)} 기록을 삭제하시겠습니까?`,async()=>{
-    showLoading('삭제 중...');
+  showConfirm('确认删除',`${fmtShort(log.log_date)} 确定要删除此记录吗？`,async()=>{
+    showLoading('删除中...');
     const ok=await deleteLog(id);
     await loadAllLogs(); renderCalendar(); renderHistory();
     hideLoading();
-    if(ok) showToast('🗑️ 삭제되었습니다','success');
+    if(ok) showToast('🗑️ 删除成功','success');
   });
 }
 
@@ -1683,7 +1798,7 @@ function doSearch(){
     const taskText=tasks.map(t=>stripHtml(t.title+' '+t.content)).join(' ').toLowerCase();
     return taskText.includes(q)||l.report?.toLowerCase().includes(q);
   }).slice(0,15);
-  if(!results.length){ c.innerHTML='<div style="color:rgba(255,255,255,0.35);font-size:0.78em;padding:6px;">결과 없음</div>'; return; }
+  if(!results.length){ c.innerHTML='<div style="color:rgba(255,255,255,0.35);font-size:0.78em;padding:6px;">无结果</div>'; return; }
   c.innerHTML=results.map(l=>{
     const tasks=getTasksForLog(l);
     const preview=tasks.map(t=>stripHtml(t.title+' '+t.content)).join(' ')
@@ -1761,13 +1876,13 @@ function renderRequests(){
         ${r.content?`<div class="req-content">${escapeHtml(r.content).replace(/\n/g,'<br>')}</div>`:''}
         ${canComplete?`<div class="req-actions"><button class="btn btn-save btn-sm" onclick="completeRequest('${r.id}')">완료 처리</button></div>`:''}
         <div class="comment-section">
-          <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 댓글 ${reqComments.length}건</div>
+          <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 评论 ${reqComments.length}条</div>
           ${commentsHtml}
           <div class="comment-input-row">
             <input type="text" class="comment-input" id="rci-${r.id}"
               placeholder="댓글을 입력하세요..."
               onkeydown="if(event.key==='Enter')saveRequestComment('${r.id}','rci-${r.id}')">
-            <button class="btn btn-save btn-sm" onclick="saveRequestComment('${r.id}','rci-${r.id}')">등록</button>
+            <button class="btn btn-save btn-sm" onclick="saveRequestComment('${r.id}','rci-${r.id}')">提交</button>
           </div>
         </div>
       </div>`;
@@ -1889,7 +2004,7 @@ function addRequestModal(){
 async function submitRequest(){
   const title = (document.getElementById('reqTitleInput')?.value||'').trim();
   const content = (document.getElementById('reqContentInput')?.value||'').trim();
-  if(!title){ showToast('제목을 입력해주세요','error'); return; }
+  if(!title){ showToast('请输入标题','error'); return; }
   showLoading('요청 전송 중...');
   await saveRequest(viewingMember, currentMember, title, content);
   hideLoading();
@@ -1904,13 +2019,13 @@ async function submitRequest(){
 async function generateReport(){
   const log=getLog(currentMember,currentDate);
   const tasks=getTasksForLog(log);
-  if(!tasks.length){ showToast('업무를 먼저 등록해주세요','error'); return; }
+  if(!tasks.length){ showToast('请先输入工作内容','error'); return; }
   showLoading('보고서 생성 중...');
   const report=buildReport(currentMember,currentDate,tasks);
   await saveLogData(currentMember,currentDate,{report});
   await loadAllLogs();
   hideLoading();
-  showToast('📊 보고서 생성 완료 — 상단 보고서 관리에서 확인하세요','success');
+  showToast('📊 报告生成完成 — 请在顶部"报告管理"中查看','success');
 }
 
 function buildReport(member,date,tasks){
@@ -1950,15 +2065,15 @@ function goReportScreen(){
 
 function renderReportScreen(){
   const mf=document.getElementById('reportMemberFilter');
-  mf.innerHTML=`<button class="mf-btn ${reportFilterMember==='ALL'?'active':''}" onclick="setReportFilter('ALL')">전체</button>`
+  mf.innerHTML=`<button class="mf-btn ${reportFilterMember==='ALL'?'active':''}" onclick="setReportFilter('ALL')">全部</button>`
     +MEMBERS.map(m=>`<button class="mf-btn ${reportFilterMember===m.name?'active':''}" onclick="setReportFilter('${m.name}')" style="${reportFilterMember===m.name?`background:${m.color};border-color:${m.color};color:white;`:''}">${m.name}</button>`).join('');
 
   const reports=allLogs.filter(l=>l.report&&(reportFilterMember==='ALL'||l.member_name===reportFilterMember))
     .sort((a,b)=>b.log_date.localeCompare(a.log_date));
   const sl=document.getElementById('reportSideList');
   if(!reports.length){
-    sl.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:0.8em;padding:8px;">보고서 없음</div>';
-    document.getElementById('reportContent').innerHTML='<div class="report-empty"><div class="icon">📄</div><p>생성된 보고서가 없습니다</p></div>';
+    sl.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:0.8em;padding:8px;">暂无报告</div>';
+    document.getElementById('reportContent').innerHTML='<div class="report-empty"><div class="icon">📄</div><p>暂无生成的报告</p></div>';
     return;
   }
   sl.innerHTML=reports.map(l=>{
@@ -1989,14 +2104,14 @@ function renderReportDetail(id){
     rc.innerHTML=`<div class="report-card" style="border-left-color:${m?.color}">
       <div class="report-card-header">
         <div>
-          <div class="report-card-title">✏️ 보고서 수정</div>
+          <div class="report-card-title">✏️ 修改报告</div>
           <div class="report-card-meta">${log.member_name} · ${fmtDate(log.log_date)}</div>
         </div>
       </div>
       <div class="quill-wrap report-main" id="quill-report-wrap"><div id="quill-report-el"></div></div>
       <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn btn-save" onclick="saveReportEdit('${id}')">저장</button>
-        <button class="btn btn-outline" onclick="editingReport=false;renderReportDetail('${id}')">취소</button>
+        <button class="btn btn-save" onclick="saveReportEdit('${id}')">保存</button>
+        <button class="btn btn-outline" onclick="editingReport=false;renderReportDetail('${id}')">取消</button>
       </div>
     </div>`;
     quillReport=new Quill('#quill-report-el',{
@@ -2018,17 +2133,17 @@ function renderReportDetail(id){
   rc.innerHTML=`<div class="report-card" style="border-left-color:${m?.color}">
     <div class="report-card-header">
       <div>
-        <div class="report-card-title">📊 일일 업무 보고서</div>
+        <div class="report-card-title">📊 每日工作报告</div>
         <div class="report-card-meta">${log.member_name} · ${fmtDate(log.log_date)}</div>
       </div>
       <div class="report-card-actions">
         ${isOwner?`
         <button class="btn btn-outline btn-sm" onclick="startEditReport('${id}')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>수정
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>修改
         </button>
         <button class="btn btn-danger btn-sm" onclick="confirmDeleteReport('${id}')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg>삭제
-        </button>`:'<span style="font-size:0.78em;color:var(--muted);padding:6px 10px;">읽기 전용</span>'}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg>删除
+        </button>`:'<span style="font-size:0.78em;color:var(--muted);padding:6px 10px;">仅查看</span>'}
       </div>
     </div>
     <div class="report-body md-content">${log.report?marked.parse(log.report):''}</div>
@@ -2036,7 +2151,7 @@ function renderReportDetail(id){
     ${files.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78em;font-weight:700;color:var(--muted);margin-bottom:8px;">첨부 파일</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${files.map(a=>`<a href="${a.data}" download="${escapeHtml(a.name)}" class="attach-file" style="text-decoration:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${escapeHtml(a.name)}</span></a>`).join('')}</div></div>`:''}
     <div class="report-export-row">
       <button class="btn btn-pdf btn-sm" onclick="exportPDF('${id}')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF 저장
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF保存
       </button>
     </div>
   </div>`;
@@ -2044,30 +2159,30 @@ function renderReportDetail(id){
 
 function startEditReport(id){
   const log=allLogs.find(l=>l.id===id);
-  if(!log||log.member_name!==currentMember){ showToast('본인 보고서만 수정 가능합니다','error'); return; }
+  if(!log||log.member_name!==currentMember){ showToast('只能修改自己的报告','error'); return; }
   editingReport=true; renderReportDetail(id);
 }
 
 async function saveReportEdit(id){
   const text=quillReport?quillReport.getText().trim():'';
-  showLoading('보고서 저장 중...');
+  showLoading('报告保存中...');
   const log=allLogs.find(l=>l.id===id);
   if(!log){ hideLoading(); return; }
   const ok=await saveLogData(log.member_name,log.log_date,{report:text});
   await loadAllLogs();
   editingReport=false; hideLoading();
-  if(ok){ showToast('✅ 보고서가 수정되었습니다','success'); renderReportScreen(); }
+  if(ok){ showToast('✅ 报告修改成功','success'); renderReportScreen(); }
 }
 
 function confirmDeleteReport(id){
   const log=allLogs.find(l=>l.id===id);
-  if(!log||log.member_name!==currentMember){ showToast('본인 보고서만 삭제 가능합니다','error'); return; }
-  showConfirm('보고서 삭제',`${fmtShort(log.log_date)} 보고서를 삭제하시겠습니까?`,async()=>{
-    showLoading('삭제 중...');
+  if(!log||log.member_name!==currentMember){ showToast('只能删除自己的报告','error'); return; }
+  showConfirm('确认删除',`${fmtShort(log.log_date)} 确定要删除此报告吗？`,async()=>{
+    showLoading('删除中...');
     const ok=await deleteLog(id);
     await loadAllLogs();
     currentReportId=null; hideLoading();
-    if(ok){ showToast('🗑️ 삭제되었습니다','success'); renderReportScreen(); }
+    if(ok){ showToast('🗑️ 删除成功','success'); renderReportScreen(); }
   });
 }
 
@@ -2089,12 +2204,12 @@ function exportSingleExcel(id){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'보고서');
   XLSX.writeFile(wb,`Report_${log.member_name}_${log.log_date}.xlsx`);
-  showToast('📥 엑셀 저장 완료','success');
+  showToast('📥 Excel导出完成','success');
 }
 
 function exportAllExcel(){
   const reports=allLogs.filter(l=>l.report&&(reportFilterMember==='ALL'||l.member_name===reportFilterMember));
-  if(!reports.length){ showToast('내보낼 보고서가 없습니다','error'); return; }
+  if(!reports.length){ showToast('没有可导出的报告','error'); return; }
   const rows=[['담당자','날짜','업무 제목','업무 내용','보고서']];
   reports.sort((a,b)=>a.log_date.localeCompare(b.log_date)).forEach(l=>{
     const tasks=getTasksForLog(l);
@@ -2109,7 +2224,7 @@ function exportAllExcel(){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'전체보고서');
   XLSX.writeFile(wb,`TeamReport_${new Date().toISOString().split('T')[0]}.xlsx`);
-  showToast('📥 전체 엑셀 저장 완료','success');
+  showToast('📥 全部导出完成','success');
 }
 
 function exportPDF(id){
@@ -2129,11 +2244,11 @@ function exportPDF(id){
     .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e4ddd0;color:#7a8492;font-size:0.82em;}
     @media print{body{padding:20px;}}
   </style></head><body>
-  <h1>📊 일일 업무 보고서</h1>
-  <div class="meta">담당자: <strong>${log.member_name}</strong> &nbsp;|&nbsp; 날짜: <strong>${fmtDate(log.log_date)}</strong></div>
+  <h1>📊 每日工作报告</h1>
+  <div class="meta">负责人: <strong>${log.member_name}</strong> &nbsp;|&nbsp; 日期: <strong>${fmtDate(log.log_date)}</strong></div>
   ${taskSections}
-  <div class="section" style="border-left-color:#d4001a;"><h3>보고서</h3><pre>${escapeHtml(log.report||'')}</pre></div>
-  <div class="footer">보고자: ${log.member_name} &nbsp;|&nbsp; 출력일: ${new Date().toLocaleDateString('ko-KR')}</div>
+  <div class="section" style="border-left-color:#d4001a;"><h3>报告</h3><pre>${escapeHtml(log.report||'')}</pre></div>
+  <div class="footer">报告人: ${log.member_name} &nbsp;|&nbsp; 打印日期: ${new Date().toLocaleDateString('zh-CN')}</div>
   <script>window.onload=()=>{window.print();}<\/script>
   </body></html>`);
   w.document.close();
@@ -2180,12 +2295,12 @@ function renderCardButtons(log, task){
       <button onclick="handleCardEdit('${log.id}','${taskId}')"
         style="padding:6px 14px;background:white;border:1.5px solid #ddd;
         border-radius:8px;font-size:0.82em;font-weight:600;cursor:pointer;color:#333;">
-        수정
+        修改
       </button>
       <button onclick="confirmDeleteLog('${log.id}')"
         style="padding:6px 14px;background:var(--red);border:none;
         border-radius:8px;font-size:0.82em;font-weight:600;cursor:pointer;color:white;">
-        삭제
+        删除
       </button>
     </div>`;
 }
@@ -2218,10 +2333,10 @@ function handleCardEdit(logId, taskId){
     <div style="display:flex;gap:8px;margin-top:12px;">
       <button onclick="saveCardEdit('${logId}','${taskId}')"
         style="padding:7px 18px;background:var(--teal);color:white;border:none;
-        border-radius:8px;font-weight:700;cursor:pointer;">저장</button>
+        border-radius:8px;font-weight:700;cursor:pointer;">保存</button>
       <button onclick="renderMain()"
         style="padding:7px 18px;background:white;color:var(--ink);border:1.5px solid #ddd;
-        border-radius:8px;font-weight:600;cursor:pointer;">취소</button>
+        border-radius:8px;font-weight:600;cursor:pointer;">取消</button>
     </div>`;
 
   const q = new Quill(`#edit-quill-${targetId}`, {
@@ -2236,7 +2351,7 @@ async function saveCardEdit(logId, taskId){
   const newContent = window._editQuill ? window._editQuill.root.innerHTML : '';
   const log = allLogs.find(l => l.id === logId);
   if(!log) return;
-  showLoading('저장 중...');
+  showLoading('保存中...');
 
   try {
     let updatedTasks = log.tasks || [];
@@ -2248,7 +2363,7 @@ async function saveCardEdit(logId, taskId){
       await saveLogData(log.member_name, log.log_date, {meetings: newContent});
     }
     await loadAllLogs();
-    showToast('✅ 수정되었습니다','success');
+    showToast('✅ 修改成功','success');
     renderMain();
   } catch(e){
     console.error('[saveCardEdit]', e);
@@ -2258,9 +2373,347 @@ async function saveCardEdit(logId, taskId){
   }
 }
 
-// 앱 진입 시 히스토리 스택 고정
+// ════════════════════════════════════════
+//  NOTICES
+// ════════════════════════════════════════
+async function loadNotices() {
+  if (demoMode) {
+    allNotices = JSON.parse(localStorage.getItem(NOTICES_KEY) || '[]');
+    renderNoticesSidebar();
+    return;
+  }
+  try {
+    const r = await sbFetch('notices?select=*&order=created_at.desc');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    allNotices = await r.json();
+    renderNoticesSidebar();
+  } catch(e) {
+    console.warn('[loadNotices] notices 로딩 실패 — 로컬 모드 전환:', e.message);
+    allNotices = JSON.parse(localStorage.getItem(NOTICES_KEY) || '[]');
+    renderNoticesSidebar();
+  }
+}
+
+function getNoticeUnreadCount() {
+  if (!currentMember) return 0;
+  return allNotices.filter(n => {
+    const rb = Array.isArray(n.read_by) ? n.read_by : [];
+    return !rb.includes(currentMember);
+  }).length;
+}
+
+function renderNoticesSidebar() {
+  const badge = document.getElementById('noticeBadge');
+  const list  = document.getElementById('noticeList');
+  if (!badge || !list) return;
+
+  const unread = getNoticeUnreadCount();
+  if (unread > 0) {
+    badge.textContent = unread;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  const recent = allNotices.slice(0, 3);
+  if (!recent.length) {
+    list.innerHTML = '<div style="font-size:0.77em;color:rgba(255,255,255,0.33);padding:4px 4px 6px;">暂无公告</div>';
+    return;
+  }
+  list.innerHTML = recent.map(n => {
+    const rb = Array.isArray(n.read_by) ? n.read_by : [];
+    const isUnread = !rb.includes(currentMember);
+    const dateStr = n.created_at
+      ? new Date(n.created_at).toLocaleDateString('ko-KR', {month:'short', day:'numeric'})
+      : '';
+    return `<div class="notice-item" onclick="openNoticeDetail('${n.id}')">
+      <div class="notice-dot${isUnread ? ' unread' : ''}"></div>
+      <div class="notice-item-info">
+        <div class="notice-item-title">${escapeHtml(n.title)}</div>
+        <div class="notice-item-date">${dateStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openNoticeWrite() {
+  document.getElementById('noticeTitleInput').value = '';
+  document.getElementById('noticeBodyInput').value  = '';
+  document.getElementById('noticeWriteOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('noticeTitleInput')?.focus(), 50);
+}
+
+function closeNoticeWrite() {
+  document.getElementById('noticeWriteOverlay').classList.remove('show');
+}
+
+async function submitNotice() {
+  const title   = (document.getElementById('noticeTitleInput')?.value || '').trim();
+  const content = (document.getElementById('noticeBodyInput')?.value  || '').trim();
+  if (!title) { showToast('请输入标题', 'error'); return; }
+
+  const now = new Date().toISOString();
+  const notice = {
+    id: genUUID(), title, content, author: currentMember,
+    created_at: now, updated_at: now, comments: [], read_by: [currentMember]
+  };
+
+  showLoading('保存中...');
+
+  if (demoMode) {
+    allNotices.unshift(notice);
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    hideLoading(); closeNoticeWrite(); renderNoticesSidebar();
+    showToast('📢 公告已发布', 'success');
+    return;
+  }
+
+  try {
+    const r = await sbFetch('notices', {method:'POST', prefer:'return=minimal', body:JSON.stringify(notice)});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    await loadNotices();
+  } catch(e) {
+    console.warn('[submitNotice]', e.message);
+    allNotices.unshift(notice);
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    renderNoticesSidebar();
+  }
+  hideLoading(); closeNoticeWrite();
+  showToast('📢 公告已发布', 'success');
+}
+
+async function openNoticeDetail(noticeId) {
+  currentNoticeId = noticeId;
+  const notice = allNotices.find(n => n.id === noticeId);
+  if (!notice) return;
+
+  const rb = Array.isArray(notice.read_by) ? [...notice.read_by] : [];
+  if (!rb.includes(currentMember)) {
+    rb.push(currentMember);
+    notice.read_by = rb;
+    await _persistNoticeReadBy(notice);
+    renderNoticesSidebar();
+  }
+
+  renderNoticeDetailModal();
+  const overlay = document.getElementById('noticeDetailOverlay');
+  overlay.classList.add('show');
+}
+
+async function _persistNoticeReadBy(notice) {
+  if (demoMode) {
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices)); return;
+  }
+  try {
+    await sbFetch(`notices?id=eq.${notice.id}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({read_by: notice.read_by})
+    });
+  } catch(e) {
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+  }
+}
+
+function renderNoticeDetailModal(editMode) {
+  const notice = allNotices.find(n => n.id === currentNoticeId);
+  if (!notice) return;
+  const box = document.getElementById('noticeDetailBox');
+  const dateStr = notice.created_at
+    ? new Date(notice.created_at).toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'})
+    : '';
+  const comments = Array.isArray(notice.comments) ? notice.comments : [];
+
+  const commentsHtml = comments.map(c => {
+    const isMine = c.author === currentMember;
+    const cDate = c.created_at
+      ? new Date(c.created_at).toLocaleDateString('ko-KR', {month:'short', day:'numeric'})
+      : '';
+    return `<div class="comment-item">
+      <span class="comment-author" style="color:${memberColor(c.author)}">${escapeHtml(c.author)}</span>
+      <span class="comment-text">${escapeHtml(c.text)}</span>
+      <span class="comment-date">${cDate}</span>
+      ${isMine ? `<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;"
+        onclick="deleteNoticeComment('${notice.id}','${c.id}')">🗑️</button>` : ''}
+    </div>`;
+  }).join('');
+
+  if (editMode) {
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div class="notice-modal-title">✏️ 修改公告</div>
+        <button onclick="closeNoticeDetail()" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="notice-field-label">标题</label>
+        <input type="text" id="noticeEditTitle" class="notice-field-input" value="${escapeHtml(notice.title)}">
+      </div>
+      <div style="margin-bottom:18px;">
+        <label class="notice-field-label">内容</label>
+        <textarea id="noticeEditBody" class="notice-field-input notice-textarea" rows="5">${escapeHtml(notice.content || '')}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-outline" onclick="renderNoticeDetailModal()">取消</button>
+        <button class="btn btn-save" onclick="saveNoticeEdit('${notice.id}')">保存</button>
+      </div>`;
+    setTimeout(() => document.getElementById('noticeEditTitle')?.focus(), 50);
+    return;
+  }
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div class="notice-modal-title">📢 公告</div>
+      <button onclick="closeNoticeDetail()" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:var(--muted);flex-shrink:0;margin-left:12px;">✕</button>
+    </div>
+    <div class="notice-detail-head">
+      <div class="notice-detail-title-text">${escapeHtml(notice.title)}</div>
+      <div class="notice-detail-meta">${escapeHtml(notice.author)} · ${dateStr}</div>
+    </div>
+    <div class="notice-detail-body">${escapeHtml(notice.content || '')}</div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button class="btn btn-outline btn-sm" onclick="renderNoticeDetailModal(true)">修改</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteNotice('${notice.id}')">删除</button>
+    </div>
+    <div class="comment-section">
+      <div style="font-size:0.82em;color:var(--muted);margin-bottom:8px;">💬 评论 ${comments.length}条</div>
+      ${commentsHtml}
+      <div class="comment-input-row">
+        <input type="text" class="comment-input" id="nci-${notice.id}"
+          placeholder="댓글을 입력하세요..."
+          onkeydown="if(event.key==='Enter')saveNoticeComment('${notice.id}')">
+        <button class="btn btn-save btn-sm" onclick="saveNoticeComment('${notice.id}')">提交</button>
+      </div>
+    </div>`;
+}
+
+function closeNoticeDetail() {
+  document.getElementById('noticeDetailOverlay').classList.remove('show');
+}
+
+async function saveNoticeEdit(noticeId) {
+  const title   = (document.getElementById('noticeEditTitle')?.value || '').trim();
+  const content = (document.getElementById('noticeEditBody')?.value  || '').trim();
+  if (!title) { showToast('请输入标题', 'error'); return; }
+
+  const idx = allNotices.findIndex(n => n.id === noticeId);
+  if (idx < 0) return;
+  const updated_at = new Date().toISOString();
+  allNotices[idx] = { ...allNotices[idx], title, content, updated_at };
+
+  showLoading('修改中...');
+
+  if (demoMode) {
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    hideLoading(); renderNoticesSidebar(); renderNoticeDetailModal();
+    showToast('✅ 修改成功', 'success');
+    return;
+  }
+
+  try {
+    await sbFetch(`notices?id=eq.${noticeId}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({title, content, updated_at})
+    });
+    await loadNotices();
+  } catch(e) {
+    console.warn('[saveNoticeEdit]', e.message);
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    renderNoticesSidebar();
+  }
+  hideLoading(); renderNoticeDetailModal();
+  showToast('✅ 수정되었습니다', 'success');
+}
+
+async function deleteNotice(noticeId) {
+  showConfirm('确认删除', '确定要删除此公告吗？', async () => {
+    showLoading('删除中...');
+    allNotices = allNotices.filter(n => n.id !== noticeId);
+
+    if (demoMode) {
+      localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+      hideLoading(); closeNoticeDetail(); renderNoticesSidebar();
+      showToast('🗑️ 삭제되었습니다', 'success');
+      return;
+    }
+
+    try {
+      await sbFetch(`notices?id=eq.${noticeId}`, {method:'DELETE'});
+    } catch(e) {
+      console.warn('[deleteNotice]', e.message);
+      localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    }
+    hideLoading(); closeNoticeDetail(); renderNoticesSidebar();
+    showToast('🗑️ 삭제되었습니다', 'success');
+  });
+}
+
+async function saveNoticeComment(noticeId) {
+  const input = document.getElementById('nci-' + noticeId);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  const notice = allNotices.find(n => n.id === noticeId);
+  if (!notice) return;
+
+  const comment = {
+    id: genUUID(), author: currentMember, text,
+    created_at: new Date().toISOString()
+  };
+  notice.comments = [...(Array.isArray(notice.comments) ? notice.comments : []), comment];
+  input.value = '';
+
+  if (demoMode) {
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    renderNoticeDetailModal(); return;
+  }
+
+  try {
+    await sbFetch(`notices?id=eq.${noticeId}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({comments: notice.comments})
+    });
+  } catch(e) {
+    console.warn('[saveNoticeComment]', e.message);
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+  }
+  renderNoticeDetailModal();
+}
+
+async function deleteNoticeComment(noticeId, commentId) {
+  const notice = allNotices.find(n => n.id === noticeId);
+  if (!notice) return;
+
+  notice.comments = (Array.isArray(notice.comments) ? notice.comments : [])
+    .filter(c => c.id !== commentId);
+
+  if (demoMode) {
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+    renderNoticeDetailModal(); return;
+  }
+
+  try {
+    await sbFetch(`notices?id=eq.${noticeId}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({comments: notice.comments})
+    });
+  } catch(e) {
+    console.warn('[deleteNoticeComment]', e.message);
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(allNotices));
+  }
+  renderNoticeDetailModal();
+}
+
+// 공지 모달 오버레이 클릭으로 닫기
+document.addEventListener('click', e => {
+  if (e.target.id === 'noticeWriteOverlay')  closeNoticeWrite();
+  if (e.target.id === 'noticeDetailOverlay') closeNoticeDetail();
+});
+
+// 앱 진입 시 히스토리 스택 고정 + Supabase 자동 연결
 window.addEventListener('load', () => {
   history.replaceState({screen:'app'}, '', '');
+  showLoading('连接中...');
+  connectSB();
 });
 
 window.addEventListener('popstate', (e) => {
