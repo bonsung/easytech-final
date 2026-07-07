@@ -433,106 +433,67 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 .notice-detail-title-text{font-family:'Playfair Display',serif;font-size:1.08em;color:var(--ink);margin-bottom:4px;}
 .notice-detail-meta{font-size:0.78em;color:var(--muted);}
 .notice-detail-body{font-size:0.9em;line-height:1.85;color:var(--ink);white-space:pre-wrap;margin-bottom:18px;}
+
+/* ── LOGIN / PROFILE SCREENS ── */
+#loginScreen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;
+  background:linear-gradient(135deg,var(--teal-dark),var(--teal) 60%,var(--teal-light));padding:24px;}
+#profileScreen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;
+  background:linear-gradient(135deg,var(--teal-dark),var(--teal) 60%,var(--teal-light));padding:24px;}
+.color-opt{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;}
+.color-opt.selected{border-color:var(--ink);transform:scale(1.15);}
+/* ── ADMIN TABLE ── */
+.admin-table{width:100%;border-collapse:collapse;font-size:0.88em;}
+.admin-table th{text-align:left;padding:8px 12px;background:var(--warm);color:var(--muted);font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.admin-table td{padding:10px 12px;border-bottom:1px solid var(--border);}
 </style>
 </head>
 <body>
 
-<!-- ══ PIN SCREEN ══ -->
-<div id="pinScreen" class="screen">
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen" class="screen">
   <div class="pin-card">
     <div class="pin-logo">📋</div>
     <div class="pin-title">TeamWork</div>
     <div class="pin-sub">Easytech团队工作系统</div>
-    <label class="pin-label" for="pinInput">请输入PIN码</label>
-    <input type="password" id="pinInput" class="pin-input"
-      placeholder="••••" autofocus autocomplete="current-password"
-      oninput="localStorage.setItem('savedPin', this.value)">
-    <button class="pin-login-btn" onclick="checkPin()">登录</button>
-    <div class="pin-error" id="pinError">PIN码错误，请重试</div>
+    <div style="margin-bottom:12px;">
+      <label class="pin-label" for="loginEmail">이메일</label>
+      <input type="email" id="loginEmail" class="pin-input" placeholder="name@easytech-qd.cn" autocomplete="email">
+    </div>
+    <div style="margin-bottom:8px;">
+      <label class="pin-label" for="loginPassword">비밀번호 (6자리 이상)</label>
+      <input type="password" id="loginPassword" class="pin-input" placeholder="••••••" autocomplete="current-password">
+    </div>
+    <div style="font-size:0.76em;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+      처음에는 이메일 인증이 필요합니다. 이후에는 같은 이메일과 비밀번호만 입력하면 바로 로그인됩니다.
+    </div>
+    <button class="pin-login-btn" id="loginBtn" onclick="doLogin()">가입 / 로그인</button>
+    <div class="pin-error" id="loginError" style="display:none;"></div>
   </div>
 </div>
 
-<!-- ══ MEMBER SCREEN ══ -->
-<div id="memberScreen" class="screen">
-  <div class="member-title">TeamWork</div>
-  <div class="member-subtitle">请选择团队成员</div>
-  <div class="member-grid">
-    <div class="member-card" onclick="selectMember('JP')">
-      <div class="member-avatar avatar-jp">JP</div>
-      <div class="member-name">JP</div>
-    </div>
-    <div class="member-card" onclick="selectMember('Beryl')">
-      <div class="member-avatar avatar-beryl">BY</div>
-      <div class="member-name">Beryl</div>
-    </div>
-    <div class="member-card" onclick="selectMember('BQ')">
-      <div class="member-avatar avatar-bq">BQ</div>
-      <div class="member-name">BQ</div>
-    </div>
-    <div class="member-card" onclick="selectMember('Gao')">
-      <div class="member-avatar avatar-gao">GO</div>
-      <div class="member-name">Gao</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ SET PASSWORD SCREEN ══ -->
-<div id="setPasswordScreen" class="screen">
-  <div class="pin-card">
-    <div class="pin-logo">🔐</div>
-    <div class="pin-title" id="setPwTitle">비밀번호 설정</div>
-    <div class="pin-sub" id="setPwSub">처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.</div>
-    <div class="pin-dots">
-      <span class="pin-dot" id="setPwDot0"></span>
-      <span class="pin-dot" id="setPwDot1"></span>
-      <span class="pin-dot" id="setPwDot2"></span>
-      <span class="pin-dot" id="setPwDot3"></span>
-    </div>
-    <div class="pin-grid">
-      <button class="pin-num" onclick="setPwInput('1')">1</button>
-      <button class="pin-num" onclick="setPwInput('2')">2</button>
-      <button class="pin-num" onclick="setPwInput('3')">3</button>
-      <button class="pin-num" onclick="setPwInput('4')">4</button>
-      <button class="pin-num" onclick="setPwInput('5')">5</button>
-      <button class="pin-num" onclick="setPwInput('6')">6</button>
-      <button class="pin-num" onclick="setPwInput('7')">7</button>
-      <button class="pin-num" onclick="setPwInput('8')">8</button>
-      <button class="pin-num" onclick="setPwInput('9')">9</button>
-      <button class="pin-num pin-back" onclick="setPwBack()">⌫</button>
-      <button class="pin-num" onclick="setPwInput('0')">0</button>
-      <button class="pin-num pin-clear" onclick="showScreen('memberScreen')">취소</button>
-    </div>
-    <div id="setPwError" style="color:var(--red);font-size:0.82em;margin-top:8px;min-height:1.2em;"></div>
-  </div>
-</div>
-
-<!-- ══ MEMBER LOGIN SCREEN ══ -->
-<div id="memberLoginScreen" class="screen">
+<!-- ══ PROFILE SETUP SCREEN ══ -->
+<div id="profileScreen" class="screen">
   <div class="pin-card">
     <div class="pin-logo">👤</div>
-    <div class="pin-title" id="loginPwTitle">안녕하세요</div>
-    <div class="pin-sub" id="loginPwSub">비밀번호를 입력하세요</div>
-    <div class="pin-dots">
-      <span class="pin-dot" id="loginPwDot0"></span>
-      <span class="pin-dot" id="loginPwDot1"></span>
-      <span class="pin-dot" id="loginPwDot2"></span>
-      <span class="pin-dot" id="loginPwDot3"></span>
+    <div class="pin-title">프로필 설정</div>
+    <div class="pin-sub" style="margin-bottom:20px;">처음 접속입니다. 이름과 색상을 설정하세요.</div>
+    <div style="margin-bottom:12px;">
+      <label class="pin-label" for="profileName">표시 이름</label>
+      <input type="text" id="profileName" class="pin-input" placeholder="이름 입력 (예: JP, Beryl)">
     </div>
-    <div class="pin-grid">
-      <button class="pin-num" onclick="loginPwInput('1')">1</button>
-      <button class="pin-num" onclick="loginPwInput('2')">2</button>
-      <button class="pin-num" onclick="loginPwInput('3')">3</button>
-      <button class="pin-num" onclick="loginPwInput('4')">4</button>
-      <button class="pin-num" onclick="loginPwInput('5')">5</button>
-      <button class="pin-num" onclick="loginPwInput('6')">6</button>
-      <button class="pin-num" onclick="loginPwInput('7')">7</button>
-      <button class="pin-num" onclick="loginPwInput('8')">8</button>
-      <button class="pin-num" onclick="loginPwInput('9')">9</button>
-      <button class="pin-num pin-back" onclick="loginPwBack()">⌫</button>
-      <button class="pin-num" onclick="loginPwInput('0')">0</button>
-      <button class="pin-num pin-clear" onclick="showScreen('memberScreen')">취소</button>
+    <div style="margin-bottom:18px;">
+      <label class="pin-label">색상 선택</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+        <div class="color-opt selected" data-color="#e05252" style="background:#e05252;" onclick="selectProfileColor('#e05252')"></div>
+        <div class="color-opt" data-color="#3b6ea8" style="background:#3b6ea8;" onclick="selectProfileColor('#3b6ea8')"></div>
+        <div class="color-opt" data-color="#c9973a" style="background:#c9973a;" onclick="selectProfileColor('#c9973a')"></div>
+        <div class="color-opt" data-color="#2e9e6b" style="background:#2e9e6b;" onclick="selectProfileColor('#2e9e6b')"></div>
+        <div class="color-opt" data-color="#9b59b6" style="background:#9b59b6;" onclick="selectProfileColor('#9b59b6')"></div>
+        <div class="color-opt" data-color="#e67e22" style="background:#e67e22;" onclick="selectProfileColor('#e67e22')"></div>
+      </div>
     </div>
-    <div id="loginPwError" style="color:var(--red);font-size:0.82em;margin-top:8px;min-height:1.2em;"></div>
+    <button class="pin-login-btn" onclick="saveProfile()">시작하기</button>
+    <div id="profileError" style="color:var(--red);font-size:0.82em;margin-top:10px;min-height:1.2em;"></div>
   </div>
 </div>
 
@@ -551,7 +512,7 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
           <div class="badge-dd-label">团队成员</div>
           <div id="badgeMemberList"></div>
           <div class="badge-dd-divider"></div>
-          <button onclick="closeBadgeMenu();startChangePassword();">비밀번호 변경</button>
+          <button onclick="closeBadgeMenu();doLogout();">로그아웃</button>
         </div>
       </div>
     </div>
@@ -707,6 +668,18 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
   <div class="notice-modal" id="noticeDetailBox"></div>
 </div>
 
+<!-- ══ ADMIN MEMBER MANAGEMENT OVERLAY ══ -->
+<div class="confirm-overlay" id="adminMembersOverlay" style="z-index:800;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:18px;padding:28px;width:92%;max-width:640px;
+    max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div style="font-family:'Playfair Display',serif;font-size:1.1em;color:var(--teal-dark);">👑 멤버 관리</div>
+      <button onclick="closeAdminMembers()" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div id="adminMemberTable"></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 <!-- LOADING -->
@@ -734,15 +707,14 @@ const CONFIG = {
   SUPABASE_URL: 'https://bpchwobwwkplmrfmpesm.supabase.co',
   SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwY2h3b2J3d2twbG1yZm1wZXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTc3MjQsImV4cCI6MjA4NzYzMzcyNH0.Ox73ZTcpl_yT4UrZEI1PooBfrx_8MVXaZkuv5lOrdTk',
   EMAIL_DOMAIN: 'easytech-qd.cn',
-  PIN: '0808',
 };
 
-const MEMBERS = [
-  { name:'JP',    color:'#e05252', init:'JP' },
-  { name:'Beryl', color:'#3b6ea8', init:'BY' },
-  { name:'BQ',    color:'#c9973a', init:'BQ' },
-  { name:'Gao',   color:'#2e9e6b', init:'GO' },
-];
+// Dynamic members list — loaded from Supabase members table
+let members = [];
+// Auth state
+let authSession = null;
+let currentMemberRecord = null;
+let profileColor = '#e05252';
 const DEMO_KEY = 'teamReport_v7';
 const SB_CACHE = 'sb_logs_v1';
 const SB_REQ_CACHE = 'sb_req_v1';
@@ -789,8 +761,8 @@ function fmtCommentDate(s) {
   const d = new Date(s);
   return d.toLocaleDateString('ko-KR', { month:'short', day:'numeric' });
 }
-function memberColor(n){ return MEMBERS.find(m=>m.name===n)?.color||'#888'; }
-function memberInit(n){ return MEMBERS.find(m=>m.name===n)?.init||n.slice(0,2).toUpperCase(); }
+function memberColor(n){ return members.find(m=>m.name===n)?.color||'#888'; }
+function memberInit(n){ return members.find(m=>m.name===n)?.init||n.slice(0,2).toUpperCase(); }
 function genUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -828,10 +800,11 @@ function closeConfirm(){ document.getElementById('confirmOverlay').classList.rem
 //  SUPABASE REST
 // ════════════════════════════════════════
 function sbFetch(path, options={}) {
+  const token = authSession?.access_token || sbKey;
   return fetch(`${sbUrl}/rest/v1/${path}`, {
     ...options,
     headers: {
-      'apikey': sbKey, 'Authorization': `Bearer ${sbKey}`,
+      'apikey': sbKey, 'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json', 'Prefer': options.prefer||'',
       ...(options.headers||{})
     }
@@ -839,170 +812,283 @@ function sbFetch(path, options={}) {
 }
 
 // ════════════════════════════════════════
-//  PIN
-// ════════════════════════════════════════
-(function restoreSavedPin(){
-  const saved = localStorage.getItem('savedPin');
-  if(saved){ const el=document.getElementById('pinInput'); if(el) el.value=saved; }
-})();
-async function checkPin(){
-  const val = document.getElementById('pinInput').value;
-  if(val !== CONFIG.PIN){ document.getElementById('pinError').style.display='block'; return; }
-  document.getElementById('pinError').style.display='none';
-  showLoading('连接中...');
-  await connectSB();
-}
-async function connectSB(){
-  sbUrl=CONFIG.SUPABASE_URL; sbKey=CONFIG.SUPABASE_KEY; emailDomain=CONFIG.EMAIL_DOMAIN;
-  if(!sbKey){ demoMode=true; hideLoading(); showScreen('memberScreen'); return; }
-  try {
-    const r=await sbFetch('daily_logs?select=id&limit=1');
-    if(!r.ok) throw new Error();
-    demoMode=false; hideLoading(); showScreen('memberScreen');
-  } catch(e){
-    demoMode=true; hideLoading();
-    showToast('服务器连接失败，本地模式运行','error');
-    showScreen('memberScreen');
-  }
-}
-document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPin(); });
-
-// ════════════════════════════════════════
-//  MEMBER PIN SYSTEM
+//  AUTH — EMAIL / PASSWORD
 // ════════════════════════════════════════
 let pendingMember = null;
-let setPwBuffer = '', setPwStep = 'first', setPwFirst = '', isChangingPassword = false;
-let loginPwBuffer = '', loginPwAttempts = 0, loginPwMode = 'login';
 
-function getMemberPin(name){ return localStorage.getItem('memberPin_' + name); }
-function setMemberPin(name, pin){ localStorage.setItem('memberPin_' + name, pin); }
+async function doLogin(){
+  const email = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value || '';
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none'; errEl.style.color = 'var(--red)';
 
-function updateSetPwDots(){
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('setPwDot'+i);
-    if(d) d.classList.toggle('filled', i < setPwBuffer.length);
+  if(!email || !password){
+    errEl.textContent = '이메일과 비밀번호를 입력하세요'; errEl.style.display = 'block'; return;
+  }
+  if(password.length < 6){
+    errEl.textContent = '비밀번호는 6자리 이상이어야 합니다'; errEl.style.display = 'block'; return;
+  }
+
+  document.getElementById('loginBtn').disabled = true;
+  showLoading('로그인 중...');
+  sbUrl = CONFIG.SUPABASE_URL; sbKey = CONFIG.SUPABASE_KEY; emailDomain = CONFIG.EMAIL_DOMAIN;
+
+  // 1. Try sign in first
+  try {
+    const r = await fetch(`${sbUrl}/auth/v1/token?grant_type=password`, {
+      method:'POST',
+      headers:{'apikey':sbKey,'Content-Type':'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const data = await r.json();
+    if(r.ok && data.access_token){
+      authSession = data;
+      localStorage.setItem('auth_session', JSON.stringify(data));
+      await afterAuth();
+      return;
+    }
+  } catch(e){ /* fall through to signup */ }
+
+  // 2. Sign in failed → try sign up (company domain only)
+  const domain = email.split('@')[1];
+  if(domain !== CONFIG.EMAIL_DOMAIN){
+    hideLoading(); document.getElementById('loginBtn').disabled = false;
+    errEl.textContent = `회사 이메일(${CONFIG.EMAIL_DOMAIN})로만 가입 가능합니다`;
+    errEl.style.display = 'block'; return;
+  }
+
+  try {
+    const r2 = await fetch(`${sbUrl}/auth/v1/signup`, {
+      method:'POST',
+      headers:{'apikey':sbKey,'Content-Type':'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const data2 = await r2.json();
+    if(!r2.ok) throw new Error(data2.msg || data2.message || '가입 실패');
+
+    if(data2.access_token){
+      authSession = data2;
+      localStorage.setItem('auth_session', JSON.stringify(data2));
+      await afterAuth();
+    } else {
+      // Email confirmation required
+      hideLoading(); document.getElementById('loginBtn').disabled = false;
+      errEl.style.color = 'var(--green)';
+      errEl.textContent = '인증 메일이 발송되었습니다. 메일의 링크를 클릭한 후 다시 로그인하세요.';
+      errEl.style.display = 'block';
+    }
+  } catch(e){
+    hideLoading(); document.getElementById('loginBtn').disabled = false;
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = '로그인/가입 실패: ' + (e.message || '다시 시도하세요');
+    errEl.style.display = 'block';
   }
 }
-function setPwInput(digit){
-  if(setPwBuffer.length >= 4) return;
-  setPwBuffer += digit;
-  updateSetPwDots();
-  if(setPwBuffer.length === 4){
-    setTimeout(()=>{
-      if(setPwStep === 'first'){
-        setPwFirst = setPwBuffer; setPwBuffer = ''; setPwStep = 'confirm';
-        document.getElementById('setPwSub').textContent = '다시 한 번 입력해 확인해주세요.';
-        document.getElementById('setPwError').textContent = '';
-        updateSetPwDots();
-      } else {
-        if(setPwBuffer === setPwFirst){
-          setMemberPin(pendingMember, setPwBuffer);
-          if(isChangingPassword){
-            showToast('✅ 비밀번호가 변경되었습니다','success');
-            showScreen('appScreen');
-          } else {
-            initApp();
-          }
-        } else {
-          document.getElementById('setPwError').textContent = '비밀번호가 일치하지 않습니다. 다시 시도해주세요.';
-          setPwBuffer = ''; setPwFirst = ''; setPwStep = 'first';
-          document.getElementById('setPwSub').textContent = isChangingPassword ? '새 비밀번호를 입력하세요.' : '처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.';
-          updateSetPwDots();
-        }
-      }
-    }, 100);
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.getElementById('loginScreen')?.classList.contains('active')) doLogin();
+});
+
+async function afterAuth(){
+  await loadMembers();
+  const userId = authSession.user?.id;
+  // Fetch this user's own record (including if inactive) — auth_id 컬럼으로 매칭
+  let userRecord = null;
+  try {
+    const r = await sbFetch(`members?auth_id=eq.${userId}&select=*&limit=1`);
+    if(r.ok){ const rows = await r.json(); userRecord = rows[0] || null; }
+  } catch(e){ console.warn('[afterAuth] members fetch:', e.message); }
+
+  if(userRecord){
+    if(!userRecord.is_active){
+      hideLoading();
+      showToast('관리자에 의해 접근이 제한된 계정입니다', 'error');
+      authSession = null; currentMemberRecord = null;
+      localStorage.removeItem('auth_session');
+      showScreen('loginScreen');
+      document.getElementById('loginBtn').disabled = false;
+      return;
+    }
+    currentMemberRecord = userRecord;
+    pendingMember = userRecord.display_name;
+    // Ensure this member is in the members array (in case they're not active-listed yet)
+    if(!members.find(m => m.name === userRecord.display_name)){
+      members.push({
+        name: userRecord.display_name, email: userRecord.email,
+        color: userRecord.color || '#3b6ea8',
+        init: userRecord.init || userRecord.display_name.slice(0,2).toUpperCase(),
+        auth_id: userRecord.auth_id,
+        is_admin: userRecord.is_admin, is_active: userRecord.is_active, id: userRecord.id
+      });
+    }
+    hideLoading();
+    initApp();
+  } else {
+    // New user — show profile setup
+    hideLoading();
+    showScreen('profileScreen');
+    setTimeout(()=>document.getElementById('profileName')?.focus(), 100);
   }
 }
-function setPwBack(){ if(setPwBuffer.length>0){ setPwBuffer=setPwBuffer.slice(0,-1); updateSetPwDots(); } }
 
-function showSetPasswordScreen(name, forChange){
-  pendingMember = name; isChangingPassword = forChange;
-  setPwBuffer = ''; setPwStep = 'first'; setPwFirst = '';
-  document.getElementById('setPwTitle').textContent = forChange ? '비밀번호 변경 — '+name : '비밀번호 설정 — '+name;
-  document.getElementById('setPwSub').textContent = forChange ? '새 비밀번호를 입력하세요.' : '처음 접속입니다. 본인만 아는 비밀번호를 설정하세요.';
-  document.getElementById('setPwError').textContent = '';
-  updateSetPwDots();
-  showScreen('setPasswordScreen');
+async function loadMembers(){
+  try {
+    const r = await sbFetch('members?select=*&is_active=eq.true&order=created_at.asc');
+    if(r.ok){
+      const rows = await r.json();
+      members = rows.map(m => ({
+        name: m.display_name, email: m.email,
+        color: m.color || '#3b6ea8',
+        init: m.init || m.display_name.slice(0,2).toUpperCase(),
+        is_admin: m.is_admin, is_active: m.is_active, id: m.id, auth_id: m.auth_id
+      }));
+    }
+  } catch(e){ console.warn('[loadMembers]', e.message); }
 }
 
-function updateLoginPwDots(){
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('loginPwDot'+i);
-    if(d) d.classList.toggle('filled', i < loginPwBuffer.length);
+// ── Profile setup (first login)
+function selectProfileColor(color){
+  profileColor = color;
+  document.querySelectorAll('.color-opt').forEach(el =>
+    el.classList.toggle('selected', el.dataset.color === color)
+  );
+}
+
+async function saveProfile(){
+  const name = (document.getElementById('profileName')?.value || '').trim();
+  const errEl = document.getElementById('profileError');
+  if(!name){ errEl.textContent = '이름을 입력하세요'; return; }
+  if(members.find(m => m.name.toLowerCase() === name.toLowerCase())){
+    errEl.textContent = '이미 사용 중인 이름입니다'; return;
+  }
+  const userId = authSession.user?.id;
+  const email  = authSession.user?.email;
+  const init   = name.slice(0,2).toUpperCase();
+  showLoading('저장 중...');
+  try {
+    const r = await sbFetch('members', {
+      method:'POST', prefer:'return=minimal',
+      body: JSON.stringify({auth_id: userId, email, display_name: name, color: profileColor, init, is_admin: false, is_active: true})
+    });
+    if(!r.ok){ const err = await r.text(); throw new Error(err); }
+    await loadMembers();
+    currentMemberRecord = members.find(m => m.name === name) || {name, email, color: profileColor, init, is_admin: false};
+    pendingMember = name;
+    hideLoading();
+    initApp();
+  } catch(e){
+    hideLoading();
+    errEl.textContent = '저장 실패: ' + (e.message || '다시 시도하세요');
   }
 }
-function loginPwInput(digit){
-  if(loginPwBuffer.length >= 4) return;
-  loginPwBuffer += digit;
-  updateLoginPwDots();
-  if(loginPwBuffer.length === 4){
-    setTimeout(()=>{
-      const saved = getMemberPin(pendingMember);
-      if(loginPwBuffer === saved){
-        loginPwAttempts = 0;
-        if(loginPwMode === 'verify_for_change'){
-          showSetPasswordScreen(pendingMember, true);
-        } else {
-          initApp();
-        }
-      } else {
-        loginPwAttempts++;
-        loginPwBuffer = ''; updateLoginPwDots();
-        const remaining = 3 - loginPwAttempts;
-        document.getElementById('loginPwError').textContent =
-          loginPwAttempts >= 3 ? '비밀번호가 틀렸습니다. (3회 실패)' : `비밀번호가 틀렸습니다. (${loginPwAttempts}/3)`;
-      }
-    }, 100);
+
+// ── Logout
+function doLogout(){
+  const token = authSession?.access_token;
+  authSession = null; currentMemberRecord = null;
+  localStorage.removeItem('auth_session');
+  if(sbUrl && sbKey && token){
+    fetch(`${sbUrl}/auth/v1/logout`, {
+      method:'POST', headers:{'apikey':sbKey,'Authorization':`Bearer ${token}`}
+    }).catch(()=>{});
   }
+  currentMember = ''; viewingMember = '';
+  const emailEl = document.getElementById('loginEmail');
+  const pwEl    = document.getElementById('loginPassword');
+  const errEl   = document.getElementById('loginError');
+  const btnEl   = document.getElementById('loginBtn');
+  if(emailEl) emailEl.value = '';
+  if(pwEl) pwEl.value = '';
+  if(errEl){ errEl.style.display = 'none'; errEl.style.color = ''; }
+  if(btnEl) btnEl.disabled = false;
+  showScreen('loginScreen');
 }
-function loginPwBack(){ if(loginPwBuffer.length>0){ loginPwBuffer=loginPwBuffer.slice(0,-1); updateLoginPwDots(); } }
 
-function showMemberLoginScreen(name, mode){
-  pendingMember = name; loginPwMode = mode;
-  loginPwBuffer = ''; loginPwAttempts = 0;
-  document.getElementById('loginPwTitle').textContent = mode==='verify_for_change' ? '비밀번호 변경 — '+name : '안녕하세요, '+name+'님';
-  document.getElementById('loginPwSub').textContent = mode==='verify_for_change' ? '현재 비밀번호를 입력하세요' : '비밀번호를 입력하세요';
-  document.getElementById('loginPwError').textContent = '';
-  updateLoginPwDots();
-  showScreen('memberLoginScreen');
-}
-
+// ── Badge dropdown
 function toggleBadgeMenu(){
-  const dd=document.getElementById('badgeDropdown');
-  if(dd.style.display==='none'){
-    document.getElementById('badgeMemberList').innerHTML = MEMBERS.map(m=>`
+  const dd = document.getElementById('badgeDropdown');
+  if(dd.style.display === 'none'){
+    const isAdmin = currentMemberRecord?.is_admin || members.find(m => m.name === currentMember)?.is_admin;
+    document.getElementById('badgeMemberList').innerHTML = members.map(m=>`
       <button class="${m.name===viewingMember?'badge-dd-active':''}"
               onclick="closeBadgeMenu();viewMember('${m.name}');">
         <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${m.color};
           color:#fff;font-size:0.65em;font-weight:700;line-height:20px;text-align:center;
           margin-right:8px;vertical-align:middle;">${m.init}</span>${m.name}${m.name===currentMember?' <span style="opacity:0.4;font-size:0.78em;font-weight:400;">(我)</span>':''}
-      </button>`).join('');
-    dd.style.display='block';
+      </button>`).join('') + (isAdmin ? `
+        <div class="badge-dd-divider"></div>
+        <button onclick="closeBadgeMenu();openAdminMembers();">👑 멤버 관리</button>` : '');
+    dd.style.display = 'block';
   } else {
-    dd.style.display='none';
+    dd.style.display = 'none';
   }
 }
-function closeBadgeMenu(){ document.getElementById('badgeDropdown').style.display='none'; }
-function startChangePassword(){ showMemberLoginScreen(currentMember,'verify_for_change'); }
+function closeBadgeMenu(){ document.getElementById('badgeDropdown').style.display = 'none'; }
 
-document.addEventListener('click', e=>{
+document.addEventListener('click', e => {
   const wrap = e.target.closest('.badge-wrap');
   if(!wrap) closeBadgeMenu();
 });
 
-// ════════════════════════════════════════
-//  MEMBER SELECT
-// ════════════════════════════════════════
-function selectMember(name){
-  currentDate=todayStr(); calYear=new Date().getFullYear(); calMonth=new Date().getMonth();
-  const pin = getMemberPin(name);
-  if(!pin){
-    showSetPasswordScreen(name, false);
-  } else {
-    showMemberLoginScreen(name, 'login');
-  }
+// ── Admin: member management
+async function openAdminMembers(){
+  let allMembersData = [];
+  try {
+    const r = await sbFetch('members?select=*&order=created_at.asc');
+    if(r.ok) allMembersData = await r.json();
+  } catch(e){ showToast('로딩 실패', 'error'); return; }
+
+  const myAuthId = authSession?.user?.id;
+  document.getElementById('adminMemberTable').innerHTML = `
+    <table class="admin-table">
+      <thead><tr><th>이름</th><th>이메일</th><th>가입일</th><th>상태</th><th>작업</th></tr></thead>
+      <tbody>${allMembersData.map(m => {
+        const date = m.created_at ? new Date(m.created_at).toLocaleDateString('ko-KR') : '-';
+        const isSelf = m.auth_id === myAuthId;
+        return `<tr>
+          <td><span style="display:inline-flex;align-items:center;gap:8px;">
+            <span style="width:22px;height:22px;border-radius:50%;background:${m.color||'#888'};
+              display:inline-flex;align-items:center;justify-content:center;font-size:0.62em;font-weight:700;color:white;">${m.init||'??'}</span>
+            ${escapeHtml(m.display_name)}
+            ${m.is_admin?'<span style="font-size:0.7em;background:#1f5fae;color:white;padding:1px 6px;border-radius:20px;">관리자</span>':''}
+            ${isSelf?'<span style="font-size:0.7em;color:var(--muted);">(나)</span>':''}
+          </span></td>
+          <td style="font-size:0.82em;color:var(--muted);">${escapeHtml(m.email)}</td>
+          <td style="font-size:0.82em;">${date}</td>
+          <td><span style="font-size:0.78em;font-weight:700;padding:3px 10px;border-radius:20px;
+            background:${m.is_active?'#d1f5e0':'#fde8e8'};color:${m.is_active?'#1a7a52':'var(--red)'};">
+            ${m.is_active?'활성':'비활성'}</span></td>
+          <td>${isSelf?`<span style="font-size:0.8em;color:var(--muted);">-</span>`:`
+            <button class="btn btn-sm ${m.is_active?'btn-danger':'btn-save'}"
+              onclick="toggleMemberActive('${m.id}',${!m.is_active})">
+              ${m.is_active?'비활성화':'활성화'}</button>`}
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="font-size:0.76em;color:var(--muted);margin-top:14px;padding:10px;background:var(--warm);border-radius:8px;">
+      ℹ️ 계정 완전 삭제는 Supabase 관리자 콘솔에서만 가능합니다
+      <!-- NOTE: auth.users 삭제는 service_role 키가 필요 — 클라이언트 코드에서는 처리 불가 -->
+    </div>`;
+  document.getElementById('adminMembersOverlay').classList.add('show');
 }
-function goMemberSelect(){ showScreen('memberScreen'); }
+
+async function toggleMemberActive(memberId, newStatus){
+  try {
+    const r = await sbFetch(`members?id=eq.${memberId}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({is_active: newStatus})
+    });
+    if(!r.ok) throw new Error();
+    showToast(newStatus ? '✅ 활성화되었습니다' : '🚫 비활성화되었습니다', 'success');
+    openAdminMembers();
+  } catch(e){ showToast('처리 실패', 'error'); }
+}
+
+function closeAdminMembers(){
+  document.getElementById('adminMembersOverlay').classList.remove('show');
+}
+
 function goBack(){ showScreen('appScreen'); }
 
 // ════════════════════════════════════════
@@ -1012,7 +1098,7 @@ async function initApp(){
   currentMember = pendingMember;
   viewingMember = pendingMember;
   showScreen('appScreen');
-  const m=MEMBERS.find(x=>x.name===currentMember);
+  const m = members.find(x=>x.name===currentMember) || {init: currentMember.slice(0,2).toUpperCase(), color:'#888'};
   document.getElementById('topBadgeAv').textContent=m.init;
   document.getElementById('topBadgeAv').style.background=m.color;
   document.getElementById('topBadgeName').textContent=currentMember;
@@ -1302,7 +1388,7 @@ function updateNotifBadges(){
   }
 
   // topbar 전체 합산 배지
-  const total = MEMBERS
+  const total = members
     .filter(m => m.name !== currentMember)
     .reduce((acc, m) => acc + getUnreadCount(currentMember, m.name), 0);
   let topBadge = document.getElementById('topbarNotifBadge');
@@ -1323,7 +1409,7 @@ function updateNotifBadges(){
 //  TEAM LIST
 // ════════════════════════════════════════
 function renderTeamList(){
-  document.getElementById('teamList').innerHTML=MEMBERS.map(m=>{
+  document.getElementById('teamList').innerHTML=members.map(m=>{
     const cnt = currentMember ? getUnreadCount(currentMember, m.name) : 0;
     const badge = cnt > 0 ? `<span class="notif-badge">${cnt}</span>` : '';
     return `
@@ -1354,7 +1440,7 @@ function renderMain(){
   const isToday=currentDate===todayStr();
   document.getElementById('mainDateTitle').textContent=fmtShort(currentDate)+(isToday?' 📅':'');
   document.getElementById('mainDateSub').textContent=fmtDate(currentDate);
-  const m=MEMBERS.find(x=>x.name===viewingMember);
+  const m=members.find(x=>x.name===viewingMember)||{color:'#888',init:viewingMember.slice(0,2).toUpperCase()};
   const isMe=viewingMember===currentMember;
   document.getElementById('viewingBadge').innerHTML=`<div class="viewing-badge" style="background:${m.color}">${m.init} ${viewingMember}${isMe?' (我)':''}</div>`;
   const memberLogs=allLogs.filter(l=>l.member_name===viewingMember);
@@ -1762,7 +1848,7 @@ function renderHistory(){
     if(l.report) tags.push(['报告', false]);
     const imgs = (l.attachments||[]).filter(a => a.type==='image').slice(0,3)
       .map(a => `<img src="${a.data}" class="hcard-img">`).join('');
-    const m = MEMBERS.find(x => x.name === l.member_name);
+    const m = members.find(x => x.name === l.member_name);
 
     return `<div class="hcard" style="border-left-color:${m?.color||'#888'};cursor:pointer;"
   onclick="selectDate('${l.log_date}')">
@@ -1858,7 +1944,7 @@ function renderRequests(){
   }
 
   const cardsHtml = filtered.map(r => {
-    const m = MEMBERS.find(x => x.name === r.from_member);
+    const m = members.find(x => x.name === r.from_member);
     const fromColor = m ? m.color : '#888';
     const canComplete = r.to_member === currentMember && r.status === 'pending';
     const reqComments = allRequestComments
@@ -2074,7 +2160,7 @@ function goReportScreen(){
 function renderReportScreen(){
   const mf=document.getElementById('reportMemberFilter');
   mf.innerHTML=`<button class="mf-btn ${reportFilterMember==='ALL'?'active':''}" onclick="setReportFilter('ALL')">全部</button>`
-    +MEMBERS.map(m=>`<button class="mf-btn ${reportFilterMember===m.name?'active':''}" onclick="setReportFilter('${m.name}')" style="${reportFilterMember===m.name?`background:${m.color};border-color:${m.color};color:white;`:''}">${m.name}</button>`).join('');
+    +members.map(m=>`<button class="mf-btn ${reportFilterMember===m.name?'active':''}" onclick="setReportFilter('${m.name}')" style="${reportFilterMember===m.name?`background:${m.color};border-color:${m.color};color:white;`:''}">${m.name}</button>`).join('');
 
   const reports=allLogs.filter(l=>l.report&&(reportFilterMember==='ALL'||l.member_name===reportFilterMember))
     .sort((a,b)=>b.log_date.localeCompare(a.log_date));
@@ -2085,7 +2171,7 @@ function renderReportScreen(){
     return;
   }
   sl.innerHTML=reports.map(l=>{
-    const m=MEMBERS.find(x=>x.name===l.member_name);
+    const m=members.find(x=>x.name===l.member_name);
     return `<div class="report-list-item ${l.id===currentReportId?'active':''}" onclick="selectReport('${l.id}')">
       <div class="rli-date">${fmtDate(l.log_date)}</div>
       <div class="rli-member"><div class="rli-dot" style="background:${m?.color}"></div>${l.member_name}</div>
@@ -2104,7 +2190,7 @@ function renderReportDetail(id){
   const log=allLogs.find(l=>l.id===id);
   if(!log) return;
   const isOwner=log.member_name===currentMember;
-  const m=MEMBERS.find(x=>x.name===log.member_name);
+  const m=members.find(x=>x.name===log.member_name);
   const rc=document.getElementById('reportContent');
   quillReport=null;
 
@@ -2717,11 +2803,32 @@ document.addEventListener('click', e => {
   if (e.target.id === 'noticeDetailOverlay') closeNoticeDetail();
 });
 
-// 앱 진입 시 히스토리 스택 고정 + Supabase 자동 연결
+// 앱 진입 시 히스토리 스택 고정 + 저장 세션 자동 복원
 window.addEventListener('load', () => {
   history.replaceState({screen:'app'}, '', '');
-  showLoading('连接中...');
-  connectSB();
+  sbUrl = CONFIG.SUPABASE_URL; sbKey = CONFIG.SUPABASE_KEY; emailDomain = CONFIG.EMAIL_DOMAIN;
+  const savedSession = localStorage.getItem('auth_session');
+  if(savedSession){
+    try {
+      authSession = JSON.parse(savedSession);
+      showLoading('연결 중...');
+      fetch(`${sbUrl}/auth/v1/user`, {
+        headers:{'apikey':sbKey,'Authorization':`Bearer ${authSession.access_token}`}
+      }).then(async r => {
+        if(r.ok){
+          authSession.user = await r.json();
+          localStorage.setItem('auth_session', JSON.stringify(authSession));
+          await afterAuth();
+        } else {
+          localStorage.removeItem('auth_session');
+          hideLoading();
+          showScreen('loginScreen');
+        }
+      }).catch(()=>{ hideLoading(); showScreen('loginScreen'); });
+      return;
+    } catch(e){ localStorage.removeItem('auth_session'); }
+  }
+  showScreen('loginScreen');
 });
 
 window.addEventListener('popstate', (e) => {
