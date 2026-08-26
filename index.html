@@ -358,6 +358,21 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 .task-modal{background:white;border-radius:16px;padding:28px;width:90%;max-width:560px;
   box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;}
 
+/* ── IMAGE VIEWER MODAL ── */
+.img-viewer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  display:flex;align-items:center;justify-content:center;z-index:1000;}
+.img-viewer-overlay img{max-width:90vw;max-height:85vh;object-fit:contain;
+  border-radius:6px;transition:transform 0.15s ease;}
+.img-viewer-close{position:absolute;top:20px;right:24px;background:none;border:none;
+  color:#fff;font-size:2em;line-height:1;cursor:pointer;}
+.img-viewer-arrow{position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:1.6em;
+  width:48px;height:48px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;}
+.img-viewer-arrow:hover{background:rgba(255,255,255,0.3);}
+.img-viewer-arrow.left{left:20px;}
+.img-viewer-arrow.right{right:20px;}
+
 /* ── REQUEST PANEL ── */
 .req-card{background:white;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);
   border-left:4px solid var(--border);margin-bottom:12px;transition:all 0.2s;}
@@ -1499,7 +1514,7 @@ function renderTaskCard(log,task,isMe){
   const isLegacy=!!task._legacy;
 
   const imgsHtml=attachments.filter(a=>a.type==='image')
-    .map(a=>`<div class="attach-item"><img src="${a.data}" class="attach-img" onclick="window.open(this.src)"></div>`).join('');
+    .map(a=>`<div class="attach-item"><img src="${a.data}" class="attach-img" onclick="openImageViewer(this.src)"></div>`).join('');
   const filesHtml=attachments.filter(a=>a.type==='file')
     .map(a=>`<a href="${a.data}" download="${escapeHtml(a.name)}" class="attach-file" style="text-decoration:none;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1612,19 +1627,72 @@ function closeTaskModal(){
   modalQuill=null; modalAttachments=[];
 }
 
-function handleModalFiles(e){ processFilesTo(Array.from(e.target.files),modalAttachments,renderModalAttachments); e.target.value=''; }
-function handleModalDrop(e){ e.preventDefault(); processFilesTo(Array.from(e.dataTransfer.files),modalAttachments,renderModalAttachments); }
+// ── IMAGE VIEWER MODAL ──
+let imgViewerScale=1;
+const IMG_VIEWER_MIN=0.4, IMG_VIEWER_MAX=3, IMG_VIEWER_STEP=0.15;
 
-function processFilesTo(files,arr,renderFn){
-  files.forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      const isImg=file.type.startsWith('image/');
-      arr.push({type:isImg?'image':'file',name:file.name,data:ev.target.result,mime:file.type});
-      renderFn();
-    };
-    reader.readAsDataURL(file);
+function openImageViewer(src){
+  closeImageViewer();
+  imgViewerScale=1;
+  const overlay=document.createElement('div');
+  overlay.className='img-viewer-overlay';
+  overlay.id='imgViewerOverlay';
+  overlay.innerHTML=`
+    <button class="img-viewer-close" onclick="closeImageViewer()">✕</button>
+    <button class="img-viewer-arrow left" onclick="zoomImageViewer(-1)">◀</button>
+    <img id="imgViewerImg" src="${src}">
+    <button class="img-viewer-arrow right" onclick="zoomImageViewer(1)">▶</button>
+  `;
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) closeImageViewer(); });
+  document.body.appendChild(overlay);
+  document.addEventListener('keydown',imgViewerKeyHandler);
+}
+
+function zoomImageViewer(dir){
+  imgViewerScale=Math.min(IMG_VIEWER_MAX,Math.max(IMG_VIEWER_MIN,imgViewerScale+dir*IMG_VIEWER_STEP));
+  const img=document.getElementById('imgViewerImg');
+  if(img) img.style.transform=`scale(${imgViewerScale})`;
+}
+
+function imgViewerKeyHandler(e){ if(e.key==='Escape') closeImageViewer(); }
+
+function closeImageViewer(){
+  const overlay=document.getElementById('imgViewerOverlay');
+  if(overlay) overlay.remove();
+  document.removeEventListener('keydown',imgViewerKeyHandler);
+}
+
+async function handleModalFiles(e){ const files=Array.from(e.target.files); e.target.value=''; await processFilesTo(files,modalAttachments,renderModalAttachments); }
+async function handleModalDrop(e){ e.preventDefault(); await processFilesTo(Array.from(e.dataTransfer.files),modalAttachments,renderModalAttachments); }
+
+async function uploadAttachmentFile(file){
+  const rawExt = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')+1) : '';
+  const ext = rawExt.replace(/[^a-zA-Z0-9]/g,'').slice(0,10);
+  const path = `${Date.now()}_${genUUID()}${ext?'.'+ext:''}`;
+  const token = authSession?.access_token || sbKey;
+  const r = await fetch(`${sbUrl}/storage/v1/object/attachments/${path}`, {
+    method:'POST',
+    headers:{ 'apikey':sbKey, 'Authorization':`Bearer ${token}`, 'Content-Type': file.type||'application/octet-stream' },
+    body: file
   });
+  if(!r.ok) throw new Error('upload failed');
+  return `${sbUrl}/storage/v1/object/public/attachments/${path}`;
+}
+
+async function processFilesTo(files,arr,renderFn){
+  if(!files.length) return;
+  showLoading('파일 업로드 중...');
+  for(const file of files){
+    try {
+      const publicUrl = await uploadAttachmentFile(file);
+      const isImg=file.type.startsWith('image/');
+      arr.push({type:isImg?'image':'file',name:file.name,data:publicUrl,mime:file.type});
+      renderFn();
+    } catch(e){
+      showToast(`${file.name} 업로드 실패`,'error');
+    }
+  }
+  hideLoading();
 }
 
 function renderModalAttachments(){
@@ -2246,7 +2314,7 @@ function renderReportDetail(id){
       </div>
     </div>
     <div class="report-body md-content">${log.report?marked.parse(log.report):''}</div>
-    ${imgs.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78em;font-weight:700;color:var(--muted);margin-bottom:8px;">첨부 이미지</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${imgs.map(a=>`<img src="${a.data}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);cursor:pointer;" onclick="window.open(this.src)">`).join('')}</div></div>`:''}
+    ${imgs.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78em;font-weight:700;color:var(--muted);margin-bottom:8px;">첨부 이미지</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${imgs.map(a=>`<img src="${a.data}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);cursor:pointer;" onclick="openImageViewer(this.src)">`).join('')}</div></div>`:''}
     ${files.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78em;font-weight:700;color:var(--muted);margin-bottom:8px;">첨부 파일</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${files.map(a=>`<a href="${a.data}" download="${escapeHtml(a.name)}" class="attach-file" style="text-decoration:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${escapeHtml(a.name)}</span></a>`).join('')}</div></div>`:''}
     <div class="report-export-row">
       <button class="btn btn-pdf btn-sm" onclick="exportPDF('${id}')">
