@@ -17,6 +17,7 @@
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
@@ -723,6 +724,8 @@ mark{background:rgba(201,151,58,0.4);color:white;border-radius:2px;padding:0 1px
 // ════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════
+Quill.register('modules/imageResize', window.ImageResize.default || window.ImageResize);
+
 const CONFIG = {
   SUPABASE_URL: 'https://bpchwobwwkplmrfmpesm.supabase.co',
   SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwY2h3b2J3d2twbG1yZm1wZXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTc3MjQsImV4cCI6MjA4NzYzMzcyNH0.Ox73ZTcpl_yT4UrZEI1PooBfrx_8MVXaZkuv5lOrdTk',
@@ -1611,7 +1614,7 @@ function addTaskModal(taskId){
     modules:{toolbar:false,keyboard:{bindings:{
       tab:{key:9,handler:function(){this.quill.format('indent','+1');return false;}},
       shiftTab:{key:9,shiftKey:true,handler:function(){this.quill.format('indent','-1');return false;}}
-    }}}
+    }},imageResize:{modules:['Resize','DisplaySize']}}
   };
   modalQuill=new Quill('#modalQuillEl',QUILL_OPTS);
   if(task&&task.content) modalQuill.root.innerHTML=task.content;
@@ -2508,7 +2511,7 @@ function handleCardEdit(logId, taskId){
 
   const q = new Quill(`#edit-quill-${targetId}`, {
     theme:'snow',
-    modules:{toolbar:false}
+    modules:{toolbar:false,imageResize:{modules:['Resize','DisplaySize']}}
   });
   q.root.innerHTML = targetContent;
   window._editQuill = q;
