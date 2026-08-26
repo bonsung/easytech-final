@@ -786,6 +786,7 @@ function fmtCommentDate(s) {
 }
 function memberColor(n){ return members.find(m=>m.name===n)?.color||'#888'; }
 function memberInit(n){ return members.find(m=>m.name===n)?.init||n.slice(0,2).toUpperCase(); }
+function isAdminUser(){ return !!(currentMemberRecord?.is_admin || members.find(m=>m.name===currentMember)?.is_admin); }
 function genUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -1278,7 +1279,7 @@ async function deleteLog(id){
 async function confirmDeleteLog(id){
   const log = allLogs.find(l => l.id === id);
   if(!log) return;
-  if(log.member_name !== currentMember){
+  if(log.member_name !== currentMember && !isAdminUser()){
     showToast('본인 기록만 삭제 가능합니다','error'); return;
   }
   showConfirm(
@@ -1524,12 +1525,12 @@ function renderTaskCard(log,task,isMe){
       <span>${escapeHtml(a.name)}</span></a>`).join('');
 
   const commentsHtml=comments.map(c=>{
-    const isMyComment=c.author===currentMember;
+    const canDeleteComment=c.author===currentMember||isAdminUser();
     return `<div class="comment-item">
       <span class="comment-author" style="color:${memberColor(c.author)}">${escapeHtml(c.author)}</span>
       <span class="comment-text">${escapeHtml(c.text)}</span>
       <span class="comment-date">${fmtCommentDate(c.created_at)}</span>
-      ${isMyComment?`<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;" onclick="deleteComment('${log.id}','${task.task_id}','${c.comment_id}')">🗑️</button>`:''}
+      ${canDeleteComment?`<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;" onclick="deleteComment('${log.id}','${task.task_id}','${c.comment_id}')">🗑️</button>`:''}
     </div>`;
   }).join('');
 
@@ -1946,7 +1947,7 @@ document.addEventListener('click',()=>{ document.querySelectorAll('.hcard-dropdo
 
 async function deleteHistoryLog(id){
   const log=allLogs.find(l=>l.id===id);
-  if(!log||log.member_name!==currentMember){ showToast('본인 기록만 삭제 가능합니다','error'); return; }
+  if(!log||(log.member_name!==currentMember&&!isAdminUser())){ showToast('본인 기록만 삭제 가능합니다','error'); return; }
   showConfirm('确认删除',`${fmtShort(log.log_date)} 确定要删除此记录吗？`,async()=>{
     showLoading('删除中...');
     const ok=await deleteLog(id);
@@ -2022,17 +2023,17 @@ function renderRequests(){
   const cardsHtml = filtered.map(r => {
     const m = members.find(x => x.name === r.from_member);
     const fromColor = m ? m.color : '#888';
-    const canComplete = r.to_member === currentMember && r.status === 'pending';
+    const canComplete = (r.to_member === currentMember || isAdminUser()) && r.status === 'pending';
     const reqComments = allRequestComments
       .filter(c => c.request_id === r.id)
       .sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
     const commentsHtml = reqComments.map(c => {
-      const isMyComment = c.member_name === currentMember;
+      const canDeleteComment = c.member_name === currentMember || isAdminUser();
       return `<div class="comment-item">
         <span class="comment-author" style="color:${memberColor(c.member_name)}">${escapeHtml(c.member_name)}</span>
         <span class="comment-text">${escapeHtml(c.content)}</span>
         <span class="comment-date">${fmtCommentDate(c.created_at)}</span>
-        ${isMyComment?`<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;" onclick="deleteRequestComment('${c.id}')">🗑️</button>`:''}
+        ${canDeleteComment?`<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85em;padding:0 2px;" onclick="deleteRequestComment('${c.id}')">🗑️</button>`:''}
       </div>`;
     }).join('');
     return `
@@ -2119,7 +2120,7 @@ async function saveRequestComment(requestId, inputId){
 
 async function deleteRequestComment(commentId){
   const comment = allRequestComments.find(c => c.id === commentId);
-  if(!comment || comment.member_name !== currentMember){
+  if(!comment || (comment.member_name !== currentMember && !isAdminUser())){
     showToast('본인 댓글만 삭제 가능합니다','error'); return;
   }
   allRequestComments = allRequestComments.filter(c => c.id !== commentId);
@@ -2265,7 +2266,7 @@ function selectReport(id){ currentReportId=id; editingReport=false; renderReport
 function renderReportDetail(id){
   const log=allLogs.find(l=>l.id===id);
   if(!log) return;
-  const isOwner=log.member_name===currentMember;
+  const isOwner=log.member_name===currentMember||isAdminUser();
   const m=members.find(x=>x.name===log.member_name);
   const rc=document.getElementById('reportContent');
   quillReport=null;
@@ -2329,7 +2330,7 @@ function renderReportDetail(id){
 
 function startEditReport(id){
   const log=allLogs.find(l=>l.id===id);
-  if(!log||log.member_name!==currentMember){ showToast('只能修改自己的报告','error'); return; }
+  if(!log||(log.member_name!==currentMember&&!isAdminUser())){ showToast('只能修改自己的报告','error'); return; }
   editingReport=true; renderReportDetail(id);
 }
 
@@ -2346,7 +2347,7 @@ async function saveReportEdit(id){
 
 function confirmDeleteReport(id){
   const log=allLogs.find(l=>l.id===id);
-  if(!log||log.member_name!==currentMember){ showToast('只能删除自己的报告','error'); return; }
+  if(!log||(log.member_name!==currentMember&&!isAdminUser())){ showToast('只能删除自己的报告','error'); return; }
   showConfirm('确认删除',`${fmtShort(log.log_date)} 确定要删除此报告吗？`,async()=>{
     showLoading('删除中...');
     const ok=await deleteLog(id);
@@ -2458,7 +2459,7 @@ document.addEventListener('paste',(e)=>{
 });
 
 function renderCardButtons(log, task){
-  if(!log || log.member_name !== currentMember) return '';
+  if(!log || (log.member_name !== currentMember && !isAdminUser())) return '';
   const taskId = task ? (task.task_id || '') : '';
   return `
     <div style="display:flex;gap:8px;margin-top:0;">
@@ -2477,7 +2478,7 @@ function renderCardButtons(log, task){
 
 function handleCardEdit(logId, taskId){
   const log = allLogs.find(l => l.id === logId);
-  if(!log || log.member_name !== currentMember){
+  if(!log || (log.member_name !== currentMember && !isAdminUser())){
     showToast('본인 기록만 수정 가능합니다','error'); return;
   }
 
